@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.authentication.AuthenticationProvider;
 
 import com.toeic.entity.ERole;
-import com.toeic.service.IUserService;
+import com.toeic.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfiguration {
 
 	private final JWTAuthenticationFilter jwtAuthenticationFilter;
-	private final IUserService userService;
+	private final UserService userService;
 	private String[] publicApiUrls = {
 			"/ws/**",
 			"/images/**",

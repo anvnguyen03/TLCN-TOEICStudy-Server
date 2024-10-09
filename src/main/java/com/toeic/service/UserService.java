@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.toeic.entity.User;
 
-public interface IUserService {
+public interface UserService {
 
 	UserDetailsService userDetailsService();
 

@@ -8,17 +8,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.toeic.entity.User;
-import com.toeic.repository.IUserRepository;
-import com.toeic.service.IUserService;
+import com.toeic.repository.UserRepository;
+import com.toeic.service.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements IUserService{
+public class UserServiceImpl implements UserService{
 
-private final IUserRepository userRepository;
+private final UserRepository userRepository;
 	
 	@Override
 	public UserDetailsService userDetailsService() {

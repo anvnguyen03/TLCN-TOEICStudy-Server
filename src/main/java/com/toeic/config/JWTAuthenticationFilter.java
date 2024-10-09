@@ -10,8 +10,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.toeic.service.IJWTService;
-import com.toeic.service.IUserService;
+import com.toeic.service.JWTService;
+import com.toeic.service.UserService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,8 +23,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 	
-	private final IJWTService jwtService;
-	private final IUserService userService;
+	private final JWTService jwtService;
+	private final UserService userService;
 	
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -46,7 +46,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 		if (!userEmail.isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {
 			UserDetails userDetails = this.userService.userDetailsService().loadUserByUsername(userEmail);
 			
-			if (jwtService.isTokenValid(jwt, userDetails)) {
+			if (jwtService.isTokenValid(jwt)) {
 				SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 				
 				UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(

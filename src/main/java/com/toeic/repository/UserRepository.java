@@ -9,7 +9,7 @@ import com.toeic.entity.ERole;
 import com.toeic.entity.User;
 
 @Repository
-public interface IUserRepository extends JpaRepository<User, Long>{
+public interface UserRepository extends JpaRepository<User, Long>{
 	Optional<User> findByEmail(String email);
 	boolean existsByEmail(String email);
 	Optional<User> findByRole(ERole role);
