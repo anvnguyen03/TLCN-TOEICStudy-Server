@@ -28,6 +28,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 	
+	@ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResponse<String>> handleInvalidCredentials(InvalidCredentialsException ex) {
+        ApiResponse<String> response = ApiResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage(), "Invalid Email or Password");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+	
 	// handle all exceptions that not defined
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleGenericException(Exception ex) {
