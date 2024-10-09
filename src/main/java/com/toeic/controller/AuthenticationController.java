@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.toeic.dto.request.LoginRequest;
 import com.toeic.dto.request.RegisterRequest;
 import com.toeic.dto.response.ApiResponse;
+import com.toeic.dto.response.LoginResponse;
 import com.toeic.entity.User;
 import com.toeic.service.AuthenticationService;
 
@@ -41,4 +43,12 @@ public class AuthenticationController {
 		ApiResponse<String> response = ApiResponse.success(HttpStatus.OK, "Your account has been activated successfully.", null);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+	
+	@PostMapping("/login")
+	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
+		LoginResponse loginResponse = authenticationService.login(loginRequest);
+		ApiResponse<LoginResponse> response = ApiResponse.success(HttpStatus.OK, "Logged in", loginResponse);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
 }
