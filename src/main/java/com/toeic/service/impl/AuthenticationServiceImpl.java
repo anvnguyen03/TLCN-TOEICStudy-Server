@@ -74,7 +74,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			final String otp = generateOtp();
 			user.setOtp(otp);
 			user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
-			final String siteURL = "http://localhost:5173/register/verify/" + user.getEmail();
+			final String siteURL = "http://localhost:5173/register/verify?email=" + user.getEmail();
 			final String subject = "TOEIC Study - Account activation";
 			final String body = "<p>To complete the registration process, please enter your OTP: " + otp + " in the following link: </p>"
 					+ "<a href=\"" + siteURL + "\">Active now!</a>" 
