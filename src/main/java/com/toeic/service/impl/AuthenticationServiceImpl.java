@@ -1,6 +1,8 @@
 package com.toeic.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,15 +12,17 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.toeic.dto.request.ActivateRequest;
 import com.toeic.dto.request.LoginRequest;
 import com.toeic.dto.request.RegisterRequest;
 import com.toeic.dto.response.LoginResponse;
 import com.toeic.entity.User;
 import com.toeic.exception.InvalidCredentialsException;
 import com.toeic.exception.InvalidEmailException;
+import com.toeic.exception.InvalidOtpException;
 import com.toeic.exception.InvalidPasswordException;
-import com.toeic.exception.InvalidTokenException;
 import com.toeic.exception.UserAlreadyExistsException;
+import com.toeic.exception.UserNotFoundException;
 import com.toeic.repository.UserRepository;
 import com.toeic.service.AuthenticationService;
 import com.toeic.service.EmailService;
@@ -67,11 +71,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
 		try {
-			final String activationToken = jwtService.generateActiveToken(user);
-			final String siteURL = "http://localhost:5173/register/verify/" + activationToken;
+			final String otp = generateOtp();
+			user.setOtp(otp);
+			user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
+			final String siteURL = "http://localhost:5173/register/verify/" + user.getEmail();
 			final String subject = "TOEIC Study - Account activation";
-			final String body = "<p>To complete the registration process, please click on the link below to activate your account</p>"
-					+ "<a href=\"" + siteURL + "\">Active now!</a>";
+			final String body = "<p>To complete the registration process, please enter your OTP: " + otp + " in the following link: </p>"
+					+ "<a href=\"" + siteURL + "\">Active now!</a>" 
+					+ "<br/>" + "<b>Reminder: OTP is only valid for 5 minutes</b>";
 
 			emailService.sendEmail(user.getEmail(), subject, body);
 			User createdUser = userRepository.save(user);
@@ -80,6 +87,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			throw e;
 		}
 	}
+	
+	private String generateOtp() {
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000); // 6-digit OTP
+        return String.valueOf(otp);
+    }
 
 	private boolean isValidEmail(String email) {
 		pattern = Pattern.compile(EMAIL_PATTERN);
@@ -92,15 +105,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public void activateAccount(String activationToken) {
-		if (!jwtService.isTokenValid(activationToken)) {
-			throw new InvalidTokenException("Invalid or expired token. Please use another one");
-		}
+	public boolean activateAccount(ActivateRequest activateRequest) {
+		User user = userRepository.findByEmail(activateRequest.getEmail()).orElseThrow(() -> new UserNotFoundException("User not found"));
 
-		User currentUser = userRepository.findByEmail(jwtService.extractUsername(activationToken)).get();
-		currentUser.setActivated(true);
-		userRepository.save(currentUser);
-		// next: disable token with blacklist
+		if (user.getOtp().equals(activateRequest.getOtp()) && user.getOtpExpiry().isAfter(LocalDateTime.now())) {
+			user.setActivated(true);
+			user.setOtp(null);
+			user.setOtpExpiry(null);
+			userRepository.save(user);
+			return true;
+		}
+		throw new InvalidOtpException("Invalid or expired OTP");
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.toeic.entity;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -42,6 +43,10 @@ public class User implements UserDetails {
 	private ERole role = ERole.USER;
 	
 	private boolean isActivated = false;
+	
+	private String otp;
+	
+	private LocalDateTime otpExpiry;
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

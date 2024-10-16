@@ -10,6 +10,12 @@ import com.toeic.dto.response.ApiResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<ApiResponse<String>> handleUserNotFound(UserNotFoundException e) {
+		ApiResponse<String> response = ApiResponse.error(HttpStatus.BAD_REQUEST, e.getMessage(), "User not found");
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+	
 	@ExceptionHandler(UserAlreadyExistsException.class)
 	public ResponseEntity<ApiResponse<String>> handleUserAlreadyExists(UserAlreadyExistsException e) {
 		ApiResponse<String> response = ApiResponse.error(HttpStatus.CONFLICT, e.getMessage(), "User already exists");
@@ -31,6 +37,12 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiResponse<String>> handleInvalidCredentials(InvalidCredentialsException ex) {
         ApiResponse<String> response = ApiResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage(), "Invalid Email or Password");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+	
+	@ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<ApiResponse<String>> handleInvalidOtp(InvalidOtpException ex) {
+        ApiResponse<String> response = ApiResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage(), "Invalid OTP");
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 	
