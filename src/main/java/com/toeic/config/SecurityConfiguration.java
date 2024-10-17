@@ -41,7 +41,8 @@ public class SecurityConfiguration {
 			.authorizeHttpRequests(request -> request
 												.requestMatchers(publicApiUrls).permitAll()
 
-												.requestMatchers("/api/v1/user/**").hasAnyAuthority(ERole.USER.name())
+												.requestMatchers("/api/v1/user/**", 
+																"/api/v1/account/**").hasAnyAuthority(ERole.USER.name())
 												.requestMatchers("/api/v1/admin/**").hasAnyAuthority(ERole.ADMIN.name())
 
 												.anyRequest().authenticated())
