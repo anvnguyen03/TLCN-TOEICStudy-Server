@@ -10,6 +10,12 @@ import com.toeic.dto.response.ApiResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<ApiResponse<String>> handleResourceNotFound(ResourceNotFoundException e) {
+		ApiResponse<String> response = ApiResponse.error(HttpStatus.BAD_REQUEST, e.getMessage(), e.getMessage());
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+	
 	@ExceptionHandler(UserNotFoundException.class)
 	public ResponseEntity<ApiResponse<String>> handleUserNotFound(UserNotFoundException e) {
 		ApiResponse<String> response = ApiResponse.error(HttpStatus.BAD_REQUEST, e.getMessage(), "User not found");
@@ -43,6 +49,12 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(InvalidOtpException.class)
     public ResponseEntity<ApiResponse<String>> handleInvalidOtp(InvalidOtpException ex) {
         ApiResponse<String> response = ApiResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage(), "Invalid OTP");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+	
+	@ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse<String>> handleRuntimeException(RuntimeException ex) {
+        ApiResponse<String> response = ApiResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage(), ex.getCause().toString());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 	

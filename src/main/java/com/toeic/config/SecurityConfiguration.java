@@ -30,7 +30,8 @@ public class SecurityConfiguration {
 			"/ws/**",
 			"/images/**",
 			"/audios/**",
-			"/api/v1/auth/**"
+			"/api/v1/auth/**",
+			"/api/v1/test/**"
 	};
 	
 	@Bean
@@ -42,7 +43,8 @@ public class SecurityConfiguration {
 												.requestMatchers(publicApiUrls).permitAll()
 
 												.requestMatchers("/api/v1/user/**", 
-																"/api/v1/account/**").hasAnyAuthority(ERole.USER.name())
+																"/api/v1/account/**",
+																"/api/v1/do-test").hasAnyAuthority(ERole.USER.name(), ERole.ADMIN.name())
 												.requestMatchers("/api/v1/admin/**").hasAnyAuthority(ERole.ADMIN.name())
 
 												.anyRequest().authenticated())
