@@ -13,6 +13,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +28,7 @@ import com.toeic.dto.response.DisplayTestItemDTO;
 import com.toeic.dto.response.ETestItemType;
 import com.toeic.dto.response.TestInfoDTO;
 import com.toeic.dto.response.UserResultDTO;
+import com.toeic.entity.ETestStatus;
 import com.toeic.entity.Part;
 import com.toeic.entity.Question;
 import com.toeic.entity.QuestionGroup;
@@ -278,12 +284,6 @@ public class TestServiceImpl implements TestService{
 	}
 
 	@Override
-	public List<TestInfoDTO> getPublishedTestsInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public List<DisplayTestItemDTO> getDisplayTestItem(long testId) {
 		Test test = testRepository.findById(testId).orElseThrow(() -> new ResourceNotFoundException("Test not found"));
 		List<DisplayTestItemDTO> displayItems = new ArrayList<>();
@@ -335,6 +335,34 @@ public class TestServiceImpl implements TestService{
 		
 		UserResultDTO userResultDTO = DTOMapperUtils.mapToUserResultDTO(userResult);
 		return userResultDTO;
+	}
+
+	@Override
+	public Page<TestInfoDTO> getByPublishedStatusAndKeywordWithPagination(String keyword, int page, int size, User user) {
+		// keyword rỗng/null => dùng kí tự đại diện findAll
+		String searchKeyword = (keyword == null || keyword.trim().isEmpty()) ? "" : keyword;
+		
+		Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+		
+		Page<Test> testPage = testRepository
+				.findByStatusAndTitleContainingIgnoreCase(ETestStatus.PUBLISHED, searchKeyword, pageable);
+		
+		Page<TestInfoDTO> testDTOPage = testPage.map(test -> DTOMapperUtils.mapToTestInfoDTO(test));
+		
+		if (user == null) {
+			return testDTOPage;
+		}
+		
+		// Nếu có user đăng nhập và fetch test, phải set lại thuộc tính isUserAttemped trong TestInfoDTO ( mặc định = false )
+		List<TestInfoDTO> testDTOList = testDTOPage.getContent();
+		testDTOList.forEach(testDTO -> {
+			// Kiểm tra trong UserResultRepo xem có tồn tại record nào của test và user này không
+			boolean isUserAttemped = userResultRepository.existsByTestIdAndUserId(testDTO.getId(), user.getId());
+			testDTO.setUserAttemped(isUserAttemped);
+		});
+		
+		 // Tạo lại Page<TestDTO> từ danh sách đã chỉnh sửa
+        return new PageImpl<>(testDTOList, pageable, testDTOPage.getTotalElements());
 	}
 
 }

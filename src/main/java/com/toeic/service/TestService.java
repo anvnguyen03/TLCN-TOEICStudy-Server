@@ -2,6 +2,7 @@ package com.toeic.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.toeic.dto.response.DisplayTestItemDTO;
@@ -14,8 +15,7 @@ public interface TestService {
 	void uploadTest(MultipartFile file, List<MultipartFile> images, List<MultipartFile> audios, String categoryName);
 	TestInfoDTO getTestInfo(long testId);
 	List<TestInfoDTO> getAllTestInfo();
-	List<TestInfoDTO> getPublishedTestsInfo();
 	List<DisplayTestItemDTO> getDisplayTestItem(long testId);
 	UserResultDTO getUserResult(User user, long resultId);
-
+	Page<TestInfoDTO> getByPublishedStatusAndKeywordWithPagination(String keyword, int page, int size, User user);
 }

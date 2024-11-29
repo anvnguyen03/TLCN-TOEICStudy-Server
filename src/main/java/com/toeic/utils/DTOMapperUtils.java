@@ -66,10 +66,22 @@ public class DTOMapperUtils {
 		TestInfoDTO testInfoDTO = new TestInfoDTO();
 		testInfoDTO.setId(test.getId());
 		testInfoDTO.setTitle(test.getTitle());
-		testInfoDTO.setTotalQuestions(test.getTotal_questions());
 		testInfoDTO.setDuration(test.getDuration());
-		testInfoDTO.setStatus(test.getStatus());
+		
+		if (test.getUserResults() != null) {
+			testInfoDTO.setTotalAttemps(test.getUserResults().size());
+		} else {
+			testInfoDTO.setTotalAttemps(0);
+		}
+		
+		testInfoDTO.setTotalComments(0);
+		testInfoDTO.setTotalParts(test.getParts().size());
+		testInfoDTO.setTotalQuestions(test.getTotal_questions());
+		testInfoDTO.setTestCategory(test.getTestCategory().getName());
 		testInfoDTO.setListeningAudio(test.getListening_audio());
+		testInfoDTO.setStatus(test.getStatus());
+		// Tiếp tục kiểm tra xem user hiện tại đã từng làm test này chưa trong logic service
+		testInfoDTO.setUserAttemped(false);
 		return testInfoDTO;
 		
 	}

@@ -7,5 +7,5 @@ import com.toeic.entity.UserResult;
 
 @Repository
 public interface UserResultRepository extends JpaRepository<UserResult, Long>{
-
+	boolean existsByTestIdAndUserId(long testId, long userId);
 }
