@@ -31,4 +31,9 @@ public class UserAnswer {
 	@ManyToOne
 	@JoinColumn(name = "question_id")
 	private Question question;
+	
+	public boolean getIsCorrect() {
+		return is_correct;
+	}
+	
 }

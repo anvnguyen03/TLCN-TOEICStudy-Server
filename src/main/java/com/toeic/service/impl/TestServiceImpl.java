@@ -22,17 +22,22 @@ import com.cloudinary.utils.ObjectUtils;
 import com.toeic.dto.response.DisplayTestItemDTO;
 import com.toeic.dto.response.ETestItemType;
 import com.toeic.dto.response.TestInfoDTO;
+import com.toeic.dto.response.UserResultDTO;
 import com.toeic.entity.Part;
 import com.toeic.entity.Question;
 import com.toeic.entity.QuestionGroup;
 import com.toeic.entity.QuestionGroupImage;
 import com.toeic.entity.Test;
+import com.toeic.entity.User;
+import com.toeic.entity.UserResult;
 import com.toeic.exception.ResourceNotFoundException;
 import com.toeic.repository.PartRepository;
 import com.toeic.repository.QuestionGroupImageRepository;
 import com.toeic.repository.QuestionGroupRepository;
 import com.toeic.repository.QuestionRepository;
 import com.toeic.repository.TestRepository;
+import com.toeic.repository.UserAnswerRepository;
+import com.toeic.repository.UserResultRepository;
 import com.toeic.service.TestService;
 import com.toeic.utils.DTOMapperUtils;
 
@@ -47,6 +52,8 @@ public class TestServiceImpl implements TestService{
 	private final QuestionGroupRepository questionGroupRepository;
 	private final QuestionGroupImageRepository questionGroupImageRepository;
 	private final QuestionRepository questionRepository;
+	private final UserResultRepository userResultRepository;
+	private final UserAnswerRepository userAnswerRepository;
 	private final Cloudinary cloudinary;
 	
 	@Override
@@ -310,6 +317,18 @@ public class TestServiceImpl implements TestService{
 			});
 		
 		return displayItems;
+	}
+
+	@Override
+	public UserResultDTO getUserResult(User user, long resultId) {
+		UserResult userResult = userResultRepository.findById(resultId)
+				.orElseThrow(() -> new ResourceNotFoundException("Unknown user result"));
+		if (!user.equals(userResult.getUser())) {
+			throw new ResourceNotFoundException("Unknown result for this user");
+		}
+		
+		UserResultDTO userResultDTO = DTOMapperUtils.mapToUserResultDTO(userResult);
+		return userResultDTO;
 	}
 
 }

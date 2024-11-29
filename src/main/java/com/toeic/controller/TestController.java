@@ -12,8 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.toeic.dto.response.ApiResponse;
 import com.toeic.dto.response.TestInfoDTO;
+import com.toeic.dto.response.UserResultDTO;
+import com.toeic.entity.User;
+import com.toeic.service.AccountService;
 import com.toeic.service.TestService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @CrossOrigin(origins = "*")
 public class TestController {
 
+	private final AccountService accountService;
 	private final TestService testService;
 	
 	@GetMapping("/{testId}/info")
@@ -40,4 +45,15 @@ public class TestController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
+	@GetMapping("/results/{resultId}")
+	public ResponseEntity<ApiResponse<UserResultDTO>> getUserResult(@PathVariable long resultId, HttpServletRequest request) {
+		String authorizationHeader = request.getHeader("Authorization");
+		String token = authorizationHeader.substring(7);	// Bearer <token>
+		User user = accountService.fetchAccount(token);
+		
+		UserResultDTO userResult = testService.getUserResult(user, resultId);
+		ApiResponse<UserResultDTO> response = ApiResponse.success(
+				HttpStatus.OK, "Get user result successfull", userResult);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 }

@@ -1,7 +1,9 @@
 package com.toeic.entity;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,12 +28,25 @@ public class UserResult {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
+	private int correct_answers;
+	private int incorrect_answers;
+	private int skipped_answers;
+	private int listening_corrects;
+	private int reading_corrects;
+	private int listening_score;
+	private int reading_score;
 	private int total_score;
+	private int completion_time;	// in seconds
+	private float accuracy;
 	
+	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
 	private LocalDateTime completed_at;
 	
 	@Enumerated(EnumType.STRING)
 	private EAttempStatus attemp_status;
+	
+	@Enumerated(EnumType.STRING)
+	private ETestMode test_mode;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id")
@@ -42,5 +57,5 @@ public class UserResult {
 	private Test test;
 	
 	@OneToMany(mappedBy = "userResult")
-	private Set<UserAnswer> userAnswers;
+	private List<UserAnswer> userAnswers;
 }

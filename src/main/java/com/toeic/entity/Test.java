@@ -30,7 +30,7 @@ public class Test {
 	
 	private int total_questions;
 	
-	private int duration;
+	private int duration;	// in minutes
 	
 	private String listening_audio;
 	

@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -37,6 +38,7 @@ public class User implements UserDetails {
 
 	private String fullname;
 	
+	@Column(unique = true)
 	private String email;
 	
 	@JsonIgnore
