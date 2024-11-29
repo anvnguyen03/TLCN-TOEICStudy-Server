@@ -28,8 +28,9 @@ public class AdminController {
 	public ResponseEntity<ApiResponse<String>> uploadTest(
 			@RequestParam("file") MultipartFile file,
 			@RequestParam("images") List<MultipartFile> images,
-			@RequestParam("audios") List<MultipartFile> audios) {
-		testService.uploadTest(file, images, audios);
+			@RequestParam("audios") List<MultipartFile> audios,
+			@RequestParam("categoryName") String categoryName) {
+		testService.uploadTest(file, images, audios, categoryName);
 		ApiResponse<String> response = ApiResponse.success(
 				HttpStatus.CREATED, 
 				"Files imported successfully. New test have been created!",

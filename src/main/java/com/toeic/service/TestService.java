@@ -11,7 +11,7 @@ import com.toeic.entity.User;
 
 public interface TestService {
 
-	void uploadTest(MultipartFile file, List<MultipartFile> images, List<MultipartFile> audios);
+	void uploadTest(MultipartFile file, List<MultipartFile> images, List<MultipartFile> audios, String categoryName);
 	TestInfoDTO getTestInfo(long testId);
 	List<TestInfoDTO> getAllTestInfo();
 	List<TestInfoDTO> getPublishedTestsInfo();

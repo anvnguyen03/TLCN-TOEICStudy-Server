@@ -28,6 +28,7 @@ import com.toeic.entity.Question;
 import com.toeic.entity.QuestionGroup;
 import com.toeic.entity.QuestionGroupImage;
 import com.toeic.entity.Test;
+import com.toeic.entity.TestCategory;
 import com.toeic.entity.User;
 import com.toeic.entity.UserResult;
 import com.toeic.exception.ResourceNotFoundException;
@@ -35,6 +36,7 @@ import com.toeic.repository.PartRepository;
 import com.toeic.repository.QuestionGroupImageRepository;
 import com.toeic.repository.QuestionGroupRepository;
 import com.toeic.repository.QuestionRepository;
+import com.toeic.repository.TestCategoryRepository;
 import com.toeic.repository.TestRepository;
 import com.toeic.repository.UserAnswerRepository;
 import com.toeic.repository.UserResultRepository;
@@ -47,6 +49,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TestServiceImpl implements TestService{
 	
+	private final TestCategoryRepository testCategoryRepository;
 	private final TestRepository testRepository;
 	private final PartRepository partRepository;
 	private final QuestionGroupRepository questionGroupRepository;
@@ -58,7 +61,7 @@ public class TestServiceImpl implements TestService{
 	
 	@Override
 	@Transactional
-	public void uploadTest(MultipartFile file, List<MultipartFile> images, List<MultipartFile> audios) {
+	public void uploadTest(MultipartFile file, List<MultipartFile> images, List<MultipartFile> audios, String categoryName) {
 		try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
 			
 			// 1. Handle Test Info
@@ -74,6 +77,9 @@ public class TestServiceImpl implements TestService{
 			test.setTotal_questions(totalQuestions);
 			test.setDuration(duration);
 			test.setListening_audio(listeningAudioPath);
+			
+			TestCategory testCategory = testCategoryRepository.findByName(categoryName).orElseThrow(() -> new ResourceNotFoundException("Unknown category name"));
+			test.setTestCategory(testCategory);
 			test = testRepository.save(test);
 			
 			initializeParts(test);	// initialize 7 parts for this test

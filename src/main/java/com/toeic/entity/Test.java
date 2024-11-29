@@ -35,7 +35,7 @@ public class Test {
 	private String listening_audio;
 	
 	@Enumerated(EnumType.STRING)
-	private ETestStatus status = ETestStatus.DRAFT;
+	private ETestStatus status = ETestStatus.PUBLISHED;
 	
 	@ManyToOne
 	@JoinColumn(name = "test_category_id")
