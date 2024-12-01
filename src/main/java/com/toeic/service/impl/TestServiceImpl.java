@@ -27,6 +27,7 @@ import com.cloudinary.utils.ObjectUtils;
 import com.toeic.dto.response.DisplayTestItemDTO;
 import com.toeic.dto.response.ETestItemType;
 import com.toeic.dto.response.TestInfoDTO;
+import com.toeic.dto.response.TestInfoPagingDTO;
 import com.toeic.dto.response.UserResultDTO;
 import com.toeic.entity.ETestStatus;
 import com.toeic.entity.Part;
@@ -338,7 +339,7 @@ public class TestServiceImpl implements TestService{
 	}
 
 	@Override
-	public Page<TestInfoDTO> getByPublishedStatusAndKeywordWithPagination(String keyword, int page, int size, User user) {
+	public TestInfoPagingDTO getByPublishedStatusAndKeywordWithPagination(String keyword, int page, int size, User user) {
 		// keyword rỗng/null => dùng kí tự đại diện findAll
 		String searchKeyword = (keyword == null || keyword.trim().isEmpty()) ? "" : keyword;
 		
@@ -350,7 +351,7 @@ public class TestServiceImpl implements TestService{
 		Page<TestInfoDTO> testDTOPage = testPage.map(test -> DTOMapperUtils.mapToTestInfoDTO(test));
 		
 		if (user == null) {
-			return testDTOPage;
+			return DTOMapperUtils.mapToTestInfoPagingDTO(testDTOPage);
 		}
 		
 		// Nếu có user đăng nhập và fetch test, phải set lại thuộc tính isUserAttemped trong TestInfoDTO ( mặc định = false )
@@ -362,7 +363,8 @@ public class TestServiceImpl implements TestService{
 		});
 		
 		 // Tạo lại Page<TestDTO> từ danh sách đã chỉnh sửa
-        return new PageImpl<>(testDTOList, pageable, testDTOPage.getTotalElements());
+		Page<TestInfoDTO> updatedTestDTOList = new PageImpl<>(testDTOList, pageable, testDTOPage.getTotalElements());
+        return DTOMapperUtils.mapToTestInfoPagingDTO(updatedTestDTOList);
 	}
 
 }

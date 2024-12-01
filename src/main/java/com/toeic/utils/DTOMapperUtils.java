@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+
 import com.toeic.dto.response.PartDTO;
 import com.toeic.dto.response.QuestionDTO;
 import com.toeic.dto.response.QuestionGroupDTO;
 import com.toeic.dto.response.QuestionGroupImageDTO;
 import com.toeic.dto.response.ReviewQuestionDTO;
 import com.toeic.dto.response.TestInfoDTO;
+import com.toeic.dto.response.TestInfoPagingDTO;
 import com.toeic.dto.response.UserAnswerDTO;
 import com.toeic.dto.response.UserResultDTO;
 import com.toeic.entity.Part;
@@ -177,6 +180,16 @@ public class DTOMapperUtils {
 		reviewQuestionDTO.setTranscript(question.getTranscript());
 		return reviewQuestionDTO;
 		
+	}
+	
+	public static TestInfoPagingDTO mapToTestInfoPagingDTO(Page<TestInfoDTO> testInfo) {
+		TestInfoPagingDTO testInfoPaging = new TestInfoPagingDTO();
+		testInfoPaging.setTests(testInfo.getContent());
+		testInfoPaging.setTotalPages(testInfo.getTotalPages());
+		testInfoPaging.setTotalElements(testInfo.getTotalElements());
+		testInfoPaging.setCurrentPageIndex(testInfo.getNumber());
+		testInfoPaging.setNumberOfElements(testInfo.getNumberOfElements());
+		return testInfoPaging;
 	}
 	
 }
