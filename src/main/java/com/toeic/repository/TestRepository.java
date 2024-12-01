@@ -13,4 +13,5 @@ import com.toeic.entity.Test;
 public interface TestRepository extends JpaRepository<Test, Long>{
 	// Phân trang và tìm kiếm title với status
 	Page<Test> findByStatusAndTitleContainingIgnoreCase(ETestStatus status, String keyword, Pageable pageable);
+	Page<Test> findByStatusAndTestCategoryIdAndTitleContainingIgnoreCase(ETestStatus status, Long testCategoryId, String keyword, Pageable pageable);
 }

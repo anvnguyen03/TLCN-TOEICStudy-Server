@@ -49,6 +49,7 @@ public class TestController {
 	@GetMapping("/all-published")
 	public ResponseEntity<ApiResponse<TestInfoPagingDTO>> searchTests(
 			@RequestParam(required = false) String keyword,
+			@RequestParam(required = false) Long testCategoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             HttpServletRequest request) {
@@ -57,13 +58,13 @@ public class TestController {
 		TestInfoPagingDTO testInfoDTOPaging = null;
 		// Case: User chưa đăng nhập, fetch test không xem được trạng thái isUserAttemped của Test
 		if ((authorizationHeader == null) || (authorizationHeader.trim().isEmpty())) {
-			testInfoDTOPaging = testService.getByPublishedStatusAndKeywordWithPagination(keyword, page, size, null);
+			testInfoDTOPaging = testService.getByPublishedStatusAndKeywordWithPagination(keyword, testCategoryId, page, size, null);
 		} else {
 			// Case: User đã đăng nhập, fetch test xem được trạng thái isUserAttemped của Test
 			String token = authorizationHeader.substring(7);
 			User user = accountService.fetchAccount(token);
 			
-			testInfoDTOPaging = testService.getByPublishedStatusAndKeywordWithPagination(keyword, page, size, user);
+			testInfoDTOPaging = testService.getByPublishedStatusAndKeywordWithPagination(keyword, testCategoryId, page, size, user);
 		}
 		
 		ApiResponse<TestInfoPagingDTO> response = ApiResponse.success(

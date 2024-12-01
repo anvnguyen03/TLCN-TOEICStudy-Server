@@ -18,5 +18,5 @@ public interface TestService {
 	List<TestInfoDTO> getAllTestInfo();
 	List<DisplayTestItemDTO> getDisplayTestItem(long testId);
 	UserResultDTO getUserResult(User user, long resultId);
-	TestInfoPagingDTO getByPublishedStatusAndKeywordWithPagination(String keyword, int page, int size, User user);
+	TestInfoPagingDTO getByPublishedStatusAndKeywordWithPagination(String keyword, Long testCategoryId, int page, int size, User user);
 }

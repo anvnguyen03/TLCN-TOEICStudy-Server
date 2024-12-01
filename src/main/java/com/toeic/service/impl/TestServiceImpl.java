@@ -339,14 +339,20 @@ public class TestServiceImpl implements TestService{
 	}
 
 	@Override
-	public TestInfoPagingDTO getByPublishedStatusAndKeywordWithPagination(String keyword, int page, int size, User user) {
+	public TestInfoPagingDTO getByPublishedStatusAndKeywordWithPagination(String keyword, Long testCategoryId, int page, int size, User user) {
 		// keyword rỗng/null => dùng kí tự đại diện findAll
 		String searchKeyword = (keyword == null || keyword.trim().isEmpty()) ? "" : keyword;
 		
 		Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 		
-		Page<Test> testPage = testRepository
-				.findByStatusAndTitleContainingIgnoreCase(ETestStatus.PUBLISHED, searchKeyword, pageable);
+		Page<Test> testPage = null;
+		if (testCategoryId == null) {
+			testPage = testRepository
+					.findByStatusAndTitleContainingIgnoreCase(ETestStatus.PUBLISHED, searchKeyword, pageable);
+		} else {
+			testPage = testRepository
+					.findByStatusAndTestCategoryIdAndTitleContainingIgnoreCase(ETestStatus.PUBLISHED, testCategoryId, searchKeyword, pageable);
+		}
 		
 		Page<TestInfoDTO> testDTOPage = testPage.map(test -> DTOMapperUtils.mapToTestInfoDTO(test));
 		
