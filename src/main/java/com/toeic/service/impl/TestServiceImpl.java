@@ -373,4 +373,23 @@ public class TestServiceImpl implements TestService{
         return DTOMapperUtils.mapToTestInfoPagingDTO(updatedTestDTOList);
 	}
 
+	@Override
+	public TestInfoDTO getTestInfoForLoggedInUser(User user, long testId) {
+		Test test = testRepository.findById(testId).orElseThrow(() -> new ResourceNotFoundException("Test not found"));
+		TestInfoDTO testInfo = DTOMapperUtils.mapToTestInfoDTO(test);
+		boolean isUserAttemped = userResultRepository.existsByTestIdAndUserId(testId, user.getId());
+		testInfo.setUserAttemped(isUserAttemped);
+		return testInfo;
+	}
+
+	@Override
+	public List<UserResultDTO> getUserResultsForUser(User user, long testId) {
+		List<UserResultDTO> userResultsDTO = userResultRepository.findByTestIdAndUserId(testId, user.getId())
+																.stream()
+																.map(DTOMapperUtils::mapToUserResultDTO)
+																.collect(Collectors.toList());
+		
+		return userResultsDTO;
+	}
+
 }

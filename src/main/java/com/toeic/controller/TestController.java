@@ -31,21 +31,14 @@ public class TestController {
 	private final AccountService accountService;
 	private final TestService testService;
 	
-	@GetMapping("/{testId}/info")
-	public ResponseEntity<ApiResponse<TestInfoDTO>> getTestInfo(@PathVariable long testId) {
-		TestInfoDTO testInfo = testService.getTestInfo(testId);
-		ApiResponse<TestInfoDTO> response = ApiResponse.success(
-				HttpStatus.OK, "Get test info sucessfull", testInfo);
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
-	
-	@GetMapping("/all/info")
+	@GetMapping("/all")
 	public ResponseEntity<ApiResponse<List<TestInfoDTO>>> getAllTestInfo() {
 		List<TestInfoDTO> testsInfo = testService.getAllTestInfo();
 		ApiResponse<List<TestInfoDTO>> response = ApiResponse.success(
 				HttpStatus.OK, "Get all test info sucessfull", testsInfo);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+	
 	@GetMapping("/all-published")
 	public ResponseEntity<ApiResponse<TestInfoPagingDTO>> searchTests(
 			@RequestParam(required = false) String keyword,
@@ -73,10 +66,43 @@ public class TestController {
 		return ResponseEntity.ok(response);
 	}
 	
-	@GetMapping("/results/{resultId}")
-	public ResponseEntity<ApiResponse<UserResultDTO>> getUserResult(@PathVariable long resultId, HttpServletRequest request) {
+	@GetMapping("/{testId}/info")
+	public ResponseEntity<ApiResponse<TestInfoDTO>> getTestInfo(
+			@PathVariable long testId,
+			HttpServletRequest request) {
+		TestInfoDTO testInfo = null;
 		String authorizationHeader = request.getHeader("Authorization");
-		String token = authorizationHeader.substring(7);	// Bearer <token>
+		if ((authorizationHeader == null) || (authorizationHeader.trim().isEmpty())) {
+			testInfo = testService.getTestInfo(testId);
+		} else {
+			String token = authorizationHeader.substring(7);
+			User user = accountService.fetchAccount(token);
+			testInfo = testService.getTestInfoForLoggedInUser(user, testId);
+		}
+		
+		ApiResponse<TestInfoDTO> response = ApiResponse.success(
+				HttpStatus.OK, "Get test info sucessfull", testInfo);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@GetMapping("/{testId}/results")
+	public ResponseEntity<ApiResponse<List<UserResultDTO>>> getUserResultsForUser(
+			@PathVariable long testId,
+			HttpServletRequest request) {
+		String authorizationHeader = request.getHeader("Authorization");
+		String token = authorizationHeader.substring(7);
+		User user = accountService.fetchAccount(token);
+		
+		List<UserResultDTO> userResults = testService.getUserResultsForUser(user, testId);
+		ApiResponse<List<UserResultDTO>> response = ApiResponse.success(
+				HttpStatus.OK, "Get user results successfull", userResults);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@GetMapping("/results/{resultId}")
+	public ResponseEntity<ApiResponse<UserResultDTO>> getOneUserResult(@PathVariable long resultId, HttpServletRequest request) {
+		String authorizationHeader = request.getHeader("Authorization");
+		String token = authorizationHeader.substring(7);
 		User user = accountService.fetchAccount(token);
 		
 		UserResultDTO userResult = testService.getUserResult(user, resultId);
