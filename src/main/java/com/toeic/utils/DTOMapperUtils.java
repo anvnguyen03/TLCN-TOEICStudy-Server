@@ -171,9 +171,13 @@ public class DTOMapperUtils {
 			reviewQuestionDTO.setImages(groupImages);
 			reviewQuestionDTO.setGroupContent(question.getQuestionGroup().getContent());
 		} else {
-			List<String> image = new ArrayList<>();
-			image.add(question.getImage());
-			reviewQuestionDTO.setImages(image);
+			if (question.getImage() != null) {
+				List<String> image = new ArrayList<>();
+				image.add(question.getImage());
+				reviewQuestionDTO.setImages(image);
+			} else {
+				reviewQuestionDTO.setImages(null);
+			}
 		}
 		
 		reviewQuestionDTO.setAudio(question.getAudio());
