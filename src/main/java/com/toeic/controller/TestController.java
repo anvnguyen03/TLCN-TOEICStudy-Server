@@ -31,14 +31,6 @@ public class TestController {
 	private final AccountService accountService;
 	private final TestService testService;
 	
-	@GetMapping("/all")
-	public ResponseEntity<ApiResponse<List<TestInfoDTO>>> getAllTestInfo() {
-		List<TestInfoDTO> testsInfo = testService.getAllTestInfo();
-		ApiResponse<List<TestInfoDTO>> response = ApiResponse.success(
-				HttpStatus.OK, "Get all test info sucessfull", testsInfo);
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
-	
 	@GetMapping("/all-published")
 	public ResponseEntity<ApiResponse<TestInfoPagingDTO>> searchTests(
 			@RequestParam(required = false) String keyword,
