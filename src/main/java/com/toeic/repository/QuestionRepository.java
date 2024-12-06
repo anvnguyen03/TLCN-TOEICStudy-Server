@@ -1,5 +1,6 @@
 package com.toeic.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,5 +16,5 @@ public interface QuestionRepository extends JpaRepository<Question, Long>{
 
 	@Query("SELECT q FROM Question q WHERE q.order_number = :orderNumber AND q.test = :test")
 	Optional<Question> findByOrderNumberAndTest(@Param("orderNumber") int orderNumber, @Param("test") Test test);
-	 
+	List<Question> findByTestId(long testId);
 }

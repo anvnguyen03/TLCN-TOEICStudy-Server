@@ -11,4 +11,5 @@ import com.toeic.entity.UserResult;
 public interface UserResultRepository extends JpaRepository<UserResult, Long>{
 	boolean existsByTestIdAndUserId(long testId, long userId);
 	List<UserResult> findByTestIdAndUserId(long testId, long userId);
+	List<UserResult> findByTestId(long testId);
 }

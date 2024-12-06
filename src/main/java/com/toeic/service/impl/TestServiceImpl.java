@@ -37,6 +37,7 @@ import com.toeic.entity.QuestionGroupImage;
 import com.toeic.entity.Test;
 import com.toeic.entity.TestCategory;
 import com.toeic.entity.User;
+import com.toeic.entity.UserAnswer;
 import com.toeic.entity.UserResult;
 import com.toeic.exception.ResourceNotFoundException;
 import com.toeic.repository.PartRepository;
@@ -390,6 +391,57 @@ public class TestServiceImpl implements TestService{
 																.collect(Collectors.toList());
 		
 		return userResultsDTO;
+	}
+
+	@Override
+	@Transactional
+	public void deleteTest(long testId) {
+		try {
+			Test test = testRepository.findById(testId).orElseThrow(() -> new ResourceNotFoundException("Unknown test"));
+			
+			List<UserResult> results = userResultRepository.findByTestId(testId);
+			for (UserResult result : results) {
+				
+				List<UserAnswer> answers = userAnswerRepository.findByUserResultId(result.getId());
+				for (UserAnswer answer : answers) {
+					userAnswerRepository.delete(answer);
+				}
+				
+				userResultRepository.delete(result);
+			}
+			
+			List<Question> questions = questionRepository.findByTestId(testId);
+			for (Question question : questions) {
+				questionRepository.delete(question);
+			}
+			
+			List<QuestionGroup> groups = questionGroupRepository.findByTestId(testId);
+			for (QuestionGroup group : groups) {
+				
+				List<QuestionGroupImage> groupImages = questionGroupImageRepository.findByQuestionGroupId(group.getId());
+				for (QuestionGroupImage groupImage : groupImages) {
+					questionGroupImageRepository.delete(groupImage);
+				}
+				
+				questionGroupRepository.delete(group);
+			}
+			
+			List<Part> parts = partRepository.findByTestId(testId);
+			for (Part part : parts) {
+				partRepository.delete(part);
+			}
+			
+			Map<String, Object> options = ObjectUtils.asMap(
+		            "keep_original", false // Nếu xóa bản gốc
+		        );
+			Map deleteResult = cloudinary.api().deleteResourcesByPrefix("TOEIC-Study/" + test.getTitle(), options);
+			System.out.println("Cloudinary delete result: " + deleteResult);
+			
+			testRepository.delete(test);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error while deleting test");
+		}
 	}
 
 }

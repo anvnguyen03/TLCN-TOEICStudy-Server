@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,15 @@ public class AdminTestController {
 		List<TestInfoDTO> testsInfo = testService.getAllTestInfo();
 		ApiResponse<List<TestInfoDTO>> response = ApiResponse.success(
 				HttpStatus.OK, "Get all test info sucessfull", testsInfo);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/test/delete")
+	public ResponseEntity<ApiResponse<String>> deleteTest(
+			@RequestParam(required = true) long testId) {
+		testService.deleteTest(testId);
+		ApiResponse<String> response = ApiResponse.success(
+				HttpStatus.OK, "Delete Test Successfully", null);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	

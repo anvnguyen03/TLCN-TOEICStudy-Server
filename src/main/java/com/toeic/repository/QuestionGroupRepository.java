@@ -1,5 +1,6 @@
 package com.toeic.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,5 +15,5 @@ public interface QuestionGroupRepository extends JpaRepository<QuestionGroup, Lo
 
 	Optional<QuestionGroup> findByNameAndTest(String name, Test test);
 	Optional<QuestionGroup> findByNameAndPart(String name, Part part);
-	
+	List<QuestionGroup> findByTestId(long testId);
 }

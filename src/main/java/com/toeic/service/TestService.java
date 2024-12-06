@@ -21,4 +21,6 @@ public interface TestService {
 	UserResultDTO getUserResult(User user, long resultId);
 	List<UserResultDTO> getUserResultsForUser(User user, long testId);
 	List<DisplayTestItemDTO> getDisplayTestItem(long testId);
+	
+	void deleteTest(long testId);
 }

@@ -1,5 +1,6 @@
 package com.toeic.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,5 @@ public interface PartRepository extends JpaRepository<Part, Long>{
 	
 	@Query("SELECT p FROM Part p WHERE p.part_num = :partNum AND p.test = :test")
 	Optional<Part> findByPartNumAndTest(@Param("partNum") int partNum, @Param("test") Test test);
+	List<Part> findByTestId(long testId);
 }
