@@ -1,6 +1,10 @@
 package com.toeic.service.impl;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -78,7 +82,7 @@ public class TestServiceImpl implements TestService{
 			String title = testRow.getCell(0).getStringCellValue();
 			int duration = (int) testRow.getCell(1).getNumericCellValue();
 			int totalQuestions = (int) testRow.getCell(2).getNumericCellValue();
-			String listeningAudioPath = uploadToCloudinary(testRow.getCell(3).getStringCellValue(), audios, title);
+			String listeningAudioPath = uploadToLocal(testRow.getCell(3).getStringCellValue(), audios, title);
 			
 			Test test = new Test();
 			test.setTitle(title);
@@ -117,7 +121,7 @@ public class TestServiceImpl implements TestService{
 				String imagePath = isBlankCell(imagePathCell) ? null : uploadToCloudinary(imagePathCell.getStringCellValue(), images, test.getTitle());
 				
 				Cell audioPathCell = row.getCell(10);
-				String audioPath = isBlankCell(audioPathCell) ? null : uploadToCloudinary(audioPathCell.getStringCellValue(), audios, test.getTitle());
+				String audioPath = isBlankCell(audioPathCell) ? null : uploadToLocal(audioPathCell.getStringCellValue(), audios, test.getTitle());
 				
 				Question question = new Question();
 				question.setOrder_number(orderNumber);
@@ -260,6 +264,32 @@ public class TestServiceImpl implements TestService{
 				} catch (IOException e) {
 					e.printStackTrace();
 					throw new RuntimeException("Error uploading to Cloudinary", e);
+				}
+			}
+		}
+		String fileNotFound = "File: " + fileName + " not found in resources";
+		return fileNotFound;
+	}
+	
+	private String uploadToLocal(String fileName, List<MultipartFile> resources, String testTitle) {
+		for (MultipartFile resource : resources) {
+			if (resource.getOriginalFilename().equalsIgnoreCase(fileName)) {
+				try {
+					Path uploadAudioPath = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static", "audios", testTitle);
+					if (!Files.exists(uploadAudioPath)) {
+						Files.createDirectories(uploadAudioPath);
+					}
+					
+					String audioName = resource.getOriginalFilename();
+					Path audioFile = uploadAudioPath.resolve(audioName);
+					
+					try (OutputStream osAudio = Files.newOutputStream(audioFile)) {
+						osAudio.write(resource.getBytes());
+					}
+					return fileName;
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new RuntimeException("Error uploading to local", e);
 				}
 			}
 		}
