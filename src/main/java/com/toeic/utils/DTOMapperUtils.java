@@ -15,6 +15,7 @@ import com.toeic.dto.response.TestCategoryDTO;
 import com.toeic.dto.response.TestInfoDTO;
 import com.toeic.dto.response.TestInfoPagingDTO;
 import com.toeic.dto.response.UserAnswerDTO;
+import com.toeic.dto.response.UserDTO;
 import com.toeic.dto.response.UserResultDTO;
 import com.toeic.entity.Part;
 import com.toeic.entity.Question;
@@ -22,6 +23,7 @@ import com.toeic.entity.QuestionGroup;
 import com.toeic.entity.QuestionGroupImage;
 import com.toeic.entity.Test;
 import com.toeic.entity.TestCategory;
+import com.toeic.entity.User;
 import com.toeic.entity.UserAnswer;
 import com.toeic.entity.UserResult;
 
@@ -205,4 +207,13 @@ public class DTOMapperUtils {
 		return categoryDTO;
 	}
 	
+	public static UserDTO mapToUserDTO(User user) {
+		UserDTO userDTO = new UserDTO();
+		userDTO.setId(user.getId());
+		userDTO.setFullname(user.getFullname());
+		userDTO.setEmail(user.getEmail());
+		userDTO.setRole(user.getRole().name());
+		userDTO.setActivated(user.isActivated());
+		return userDTO;
+	}
 }

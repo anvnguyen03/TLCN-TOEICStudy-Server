@@ -15,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.toeic.dto.response.ApiResponse;
 import com.toeic.dto.response.TestInfoDTO;
+import com.toeic.entity.Test;
 import com.toeic.service.TestService;
+import com.toeic.utils.DTOMapperUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -44,17 +46,16 @@ public class AdminTestController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
-	@PostMapping("/test/upload")
-	public ResponseEntity<ApiResponse<String>> uploadTest(
+	@PostMapping("/test/upload/full-test")
+	public ResponseEntity<ApiResponse<Long>> uploadFullTest(
 			@RequestParam("file") MultipartFile file,
 			@RequestParam("images") List<MultipartFile> images,
-			@RequestParam("audios") List<MultipartFile> audios,
-			@RequestParam("categoryName") String categoryName) {
-		testService.uploadTest(file, images, audios, categoryName);
-		ApiResponse<String> response = ApiResponse.success(
+			@RequestParam("audios") List<MultipartFile> audios) {
+		Test newTest = testService.uploadFullTest(file, images, audios);
+		ApiResponse<Long> response = ApiResponse.success(
 				HttpStatus.CREATED, 
 				"Files imported successfully. New test have been created!",
-				null);
+				newTest.getId());
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 }

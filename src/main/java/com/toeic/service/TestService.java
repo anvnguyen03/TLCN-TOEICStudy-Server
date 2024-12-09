@@ -2,18 +2,18 @@ package com.toeic.service;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.toeic.dto.response.DisplayTestItemDTO;
 import com.toeic.dto.response.TestInfoDTO;
 import com.toeic.dto.response.TestInfoPagingDTO;
 import com.toeic.dto.response.UserResultDTO;
+import com.toeic.entity.Test;
 import com.toeic.entity.User;
 
 public interface TestService {
 
-	void uploadTest(MultipartFile file, List<MultipartFile> images, List<MultipartFile> audios, String categoryName);
+	Test uploadFullTest(MultipartFile file, List<MultipartFile> images, List<MultipartFile> audios);
 	List<TestInfoDTO> getAllTestInfo();
 	TestInfoPagingDTO getByPublishedStatusAndKeywordWithPagination(String keyword, Long testCategoryId, int page, int size, User user);
 	TestInfoDTO getTestInfo(long testId);

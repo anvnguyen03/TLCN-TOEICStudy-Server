@@ -2,9 +2,12 @@ package com.toeic.service.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -17,6 +20,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -73,13 +77,16 @@ public class TestServiceImpl implements TestService{
 	
 	@Override
 	@Transactional
-	public void uploadTest(MultipartFile file, List<MultipartFile> images, List<MultipartFile> audios, String categoryName) {
+	public Test uploadFullTest(MultipartFile file, List<MultipartFile> images, List<MultipartFile> audios) {
+		// variable use to delete resource on local and Cloudinary if rollback execute
+		String testTitle = null;
 		try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
 			
 			// 1. Handle Test Info
 			Sheet testInfoSheet = workbook.getSheet("Test_Info");
 			Row testRow = testInfoSheet.getRow(1);	// row(0) contains header
 			String title = testRow.getCell(0).getStringCellValue();
+			testTitle = title;
 			int duration = (int) testRow.getCell(1).getNumericCellValue();
 			int totalQuestions = (int) testRow.getCell(2).getNumericCellValue();
 			String listeningAudioPath = uploadToLocal(testRow.getCell(3).getStringCellValue(), audios, title);
@@ -90,7 +97,7 @@ public class TestServiceImpl implements TestService{
 			test.setDuration(duration);
 			test.setListening_audio(listeningAudioPath);
 			
-			TestCategory testCategory = testCategoryRepository.findByName(categoryName).orElseThrow(() -> new ResourceNotFoundException("Unknown category name"));
+			TestCategory testCategory = testCategoryRepository.findByName("Full Test").orElseThrow(() -> new ResourceNotFoundException("Unknown category"));
 			test.setTestCategory(testCategory);
 			test = testRepository.save(test);
 			
@@ -231,7 +238,10 @@ public class TestServiceImpl implements TestService{
 				}
 			}
 			
+			return test;
+			
 		} catch (Exception e) {
+			System.out.println("Title: " + testTitle);
 			e.printStackTrace();
 			throw new RuntimeException("Error processing uploaded files", e);
 		}
@@ -271,11 +281,20 @@ public class TestServiceImpl implements TestService{
 		return fileNotFound;
 	}
 	
+	@Value("${FILE.UPLOAD_DIR}")
+    private String uploadDir;
+
+    @Value("${FILE.URL_PREFIX}")
+    private String urlPrefix;
+    
 	private String uploadToLocal(String fileName, List<MultipartFile> resources, String testTitle) {
 		for (MultipartFile resource : resources) {
 			if (resource.getOriginalFilename().equalsIgnoreCase(fileName)) {
 				try {
+					// Sử dụng System.getProperty("user.dir") cho môi trường local
 					Path uploadAudioPath = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static", "audios", testTitle);
+					// hoặc uploadDir cho môi trường deploy
+					// Path uploadAudioPath = Paths.get(uploadDir, "audios", testTitle);
 					if (!Files.exists(uploadAudioPath)) {
 						Files.createDirectories(uploadAudioPath);
 					}
@@ -286,7 +305,8 @@ public class TestServiceImpl implements TestService{
 					try (OutputStream osAudio = Files.newOutputStream(audioFile)) {
 						osAudio.write(resource.getBytes());
 					}
-					return fileName;
+					// trả về đường dẫn trực tiếp request đến source trên server cho trường audio
+					return urlPrefix + "audios/" + testTitle + "/" + audioName;
 				} catch (Exception e) {
 					e.printStackTrace();
 					throw new RuntimeException("Error uploading to local", e);
@@ -467,11 +487,34 @@ public class TestServiceImpl implements TestService{
 			Map deleteResult = cloudinary.api().deleteResourcesByPrefix("TOEIC-Study/" + test.getTitle(), options);
 			System.out.println("Cloudinary delete result: " + deleteResult);
 			
+			Path audiosPath = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static", "audios", test.getTitle());
+			deleteDirectoryRecursively(audiosPath);
+			
 			testRepository.delete(test);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RuntimeException("Error while deleting test");
+			throw new RuntimeException("Error while deleting test", e);
 		}
+	}
+	
+	private static void deleteDirectoryRecursively(Path path) throws IOException {
+	    Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+	        @Override
+	        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+	            Files.delete(file);
+	            return FileVisitResult.CONTINUE;
+	        }
+
+	        @Override
+	        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+	            if (exc == null) {
+	                Files.delete(dir);
+	                return FileVisitResult.CONTINUE;
+	            } else {
+	                throw exc;
+	            }
+	        }
+	    });
 	}
 
 }
