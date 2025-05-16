@@ -38,9 +38,9 @@ public class Course {
     @Column(columnDefinition = "TEXT")
     private String objective;
 
-    private String thumbnail_url;
+    private String thumbnailUrl;
 
-    private String preview_video_url; // url of the preview video on youtube
+    private String previewVideoUrl; // url of the preview video on youtube
 
     @Column(precision = 10, scale = 2)
     private BigDecimal price;

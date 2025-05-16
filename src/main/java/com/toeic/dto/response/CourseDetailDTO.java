@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
+// return course detail for course learn usecase
 public class CourseDetailDTO {
     private Long id;
     private String title;

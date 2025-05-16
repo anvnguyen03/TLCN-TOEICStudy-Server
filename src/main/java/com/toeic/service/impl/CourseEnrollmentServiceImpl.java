@@ -62,7 +62,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
         for (CourseEnrollment courseEnrollment : courseEnrollments) {
             UserLearningDTO userLearningDTO = new UserLearningDTO();
             userLearningDTO.setId(courseEnrollment.getCourse().getId());
-            userLearningDTO.setThumbnailUrl(courseEnrollment.getCourse().getThumbnail_url());
+            userLearningDTO.setThumbnailUrl(courseEnrollment.getCourse().getThumbnailUrl());
             userLearningDTO.setTitle(courseEnrollment.getCourse().getTitle());
             userLearningDTO.setLevel(courseEnrollment.getCourse().getLevel().name());
 

@@ -1,0 +1,25 @@
+package com.toeic.controller;
+
+import java.util.List;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.toeic.service.AnalyticService;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/admin/analytic")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "*")
+public class AdminAnalyticController {
+
+    private final AnalyticService analyticService;
+        
+}

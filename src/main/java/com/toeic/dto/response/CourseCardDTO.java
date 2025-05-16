@@ -3,6 +3,7 @@ package com.toeic.dto.response;
 import lombok.Data;
 
 @Data
+// return course card for course list usecase
 public class CourseCardDTO {
     private Long id;
     private String title;

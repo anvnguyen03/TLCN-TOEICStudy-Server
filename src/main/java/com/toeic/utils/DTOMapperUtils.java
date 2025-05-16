@@ -15,6 +15,12 @@ import com.toeic.dto.response.CourseInfoDTO;
 import com.toeic.dto.response.CourseReviewDTO;
 import com.toeic.dto.response.CourseSectionDetailDTO;
 import com.toeic.dto.response.CourseSectionPreviewDTO;
+import com.toeic.dto.response.FullCourseDTO;
+import com.toeic.dto.response.FullCourseSectionDTO;
+import com.toeic.dto.response.FullLessonDTO;
+import com.toeic.dto.response.FullQuizQuestionDTO;
+import com.toeic.dto.response.FullQuizQuestionOptionDTO;
+import com.toeic.dto.response.FullCardMatchingPairDTO;
 import com.toeic.dto.response.LessonDetailDTO;
 import com.toeic.dto.response.LessonPreviewDTO;
 import com.toeic.dto.response.MatchingAnswerDTO;
@@ -297,7 +303,7 @@ public class DTOMapperUtils {
 		courseCardDTO.setTitle(course.getTitle());
 		courseCardDTO.setLevel(course.getLevel().name());
 		courseCardDTO.setPrice(course.getPrice().doubleValue());
-		courseCardDTO.setImage(course.getThumbnail_url());
+		courseCardDTO.setImage(course.getThumbnailUrl());
 		
 		return courseCardDTO;
 	}
@@ -308,11 +314,19 @@ public class DTOMapperUtils {
 		courseInfoDTO.setTitle(course.getTitle());
 		courseInfoDTO.setDescription(course.getDescription());
 		courseInfoDTO.setObjective(course.getObjective());
-		courseInfoDTO.setThumbnailUrl(course.getThumbnail_url());
-		courseInfoDTO.setPreviewVideoUrl(course.getPreview_video_url());
+		courseInfoDTO.setThumbnailUrl(course.getThumbnailUrl());
+		courseInfoDTO.setPreviewVideoUrl(course.getPreviewVideoUrl());
 		courseInfoDTO.setPrice(course.getPrice().doubleValue());
-		courseInfoDTO.setTotalReviews(course.getReviews().size());
-		courseInfoDTO.setStudents(course.getEnrollments().size());
+		if (course.getReviews() != null) {
+			courseInfoDTO.setTotalReviews(course.getReviews().size());
+		} else {
+			courseInfoDTO.setTotalReviews(0);
+		}
+		if (course.getEnrollments() != null) {
+			courseInfoDTO.setStudents(course.getEnrollments().size());
+		} else {
+			courseInfoDTO.setStudents(0);
+		}
 		courseInfoDTO.setTotalSections(course.getSections().size());
 		courseInfoDTO.setTotalLessons(course.getSections().stream()
 				.mapToInt(section -> section.getLessons().size())
@@ -454,11 +468,19 @@ public class DTOMapperUtils {
 		courseDetailDTO.setTitle(course.getTitle());
 		courseDetailDTO.setDescription(course.getDescription());
 		courseDetailDTO.setObjective(course.getObjective());
-		courseDetailDTO.setThumbnailUrl(course.getThumbnail_url());
-		courseDetailDTO.setPreviewVideoUrl(course.getPreview_video_url());
+		courseDetailDTO.setThumbnailUrl(course.getThumbnailUrl());
+		courseDetailDTO.setPreviewVideoUrl(course.getPreviewVideoUrl());
 		courseDetailDTO.setPrice(course.getPrice().doubleValue());
-		courseDetailDTO.setTotalReviews(course.getReviews().size());
-		courseDetailDTO.setStudents(course.getEnrollments().size());
+		if (course.getReviews() != null) {
+			courseDetailDTO.setTotalReviews(course.getReviews().size());
+		} else {
+			courseDetailDTO.setTotalReviews(0);
+		}
+		if (course.getEnrollments() != null) {
+			courseDetailDTO.setStudents(course.getEnrollments().size());
+		} else {
+			courseDetailDTO.setStudents(0);
+		}
 		courseDetailDTO.setTotalSections(course.getSections().size());
 		courseDetailDTO.setTotalLessons(course.getSections().stream()
 				.mapToInt(section -> section.getLessons().size())
@@ -500,5 +522,110 @@ public class DTOMapperUtils {
 		}
 		sectionDTO.setLessons(lessons);
 		return sectionDTO;
+	}
+
+	public static FullCourseDTO mapToFullCourseDTO(Course course) {
+		FullCourseDTO courseDTO = new FullCourseDTO();
+		courseDTO.setId(course.getId());
+		courseDTO.setTitle(course.getTitle());
+		courseDTO.setDescription(course.getDescription());
+		courseDTO.setObjective(course.getObjective());
+		courseDTO.setThumbnailUrl(course.getThumbnailUrl());
+		courseDTO.setPreviewVideoUrl(course.getPreviewVideoUrl());
+		courseDTO.setPrice(course.getPrice().doubleValue());
+		courseDTO.setLevel(course.getLevel().name());
+		courseDTO.setStatus(course.getStatus().name());
+		courseDTO.setCreatedAt(course.getCreatedAt());
+		courseDTO.setUpdatedAt(course.getUpdatedAt());
+
+		// set sections
+		List<FullCourseSectionDTO> sections = new ArrayList<>();
+		for (CourseSection section : course.getSections()) {
+			FullCourseSectionDTO sectionDTO = mapToFullCourseSectionDTO(section);
+			sections.add(sectionDTO);
+		}
+		courseDTO.setSections(sections);
+		return courseDTO;
+	}
+
+	public static FullCourseSectionDTO mapToFullCourseSectionDTO(CourseSection section) {
+		FullCourseSectionDTO sectionDTO = new FullCourseSectionDTO();
+		sectionDTO.setId(section.getId());
+		sectionDTO.setTitle(section.getTitle());
+		sectionDTO.setOrderIndex(section.getOrderIndex());
+
+		// set lessons
+		List<FullLessonDTO> lessons = new ArrayList<>();
+		for (Lesson lesson : section.getLessons()) {
+			FullLessonDTO lessonDTO = mapToFullLessonDTO(lesson);
+			lessons.add(lessonDTO);
+		}
+		sectionDTO.setLessons(lessons);
+		return sectionDTO;
+	}
+
+	public static FullLessonDTO mapToFullLessonDTO(Lesson lesson) {
+		FullLessonDTO lessonDTO = new FullLessonDTO();
+		lessonDTO.setId(lesson.getId());
+		lessonDTO.setTitle(lesson.getTitle());
+		lessonDTO.setDescription(lesson.getDescription());
+		lessonDTO.setOrderIndex(lesson.getOrderIndex());
+		lessonDTO.setDuration(lesson.getDuration());
+		lessonDTO.setType(lesson.getType().name());
+		lessonDTO.setIsFree(lesson.getIsFree());
+		lessonDTO.setContent(lesson.getContent());
+		lessonDTO.setVideoUrl(lesson.getVideoUrl());
+
+		// set quiz questions
+		List<FullQuizQuestionDTO> quizQuestions = new ArrayList<>();
+		for (QuizQuestion quizQuestion : lesson.getQuizQuestions()) {
+			FullQuizQuestionDTO quizQuestionDTO = mapToFullQuizQuestionDTO(quizQuestion);
+			quizQuestions.add(quizQuestionDTO);
+		}
+		lessonDTO.setQuizQuestions(quizQuestions);
+		return lessonDTO;
+	}
+
+	public static FullQuizQuestionDTO mapToFullQuizQuestionDTO(QuizQuestion quizQuestion) {
+		FullQuizQuestionDTO quizQuestionDTO = new FullQuizQuestionDTO();
+		quizQuestionDTO.setId(quizQuestion.getId());
+		quizQuestionDTO.setType(quizQuestion.getType().name());
+		quizQuestionDTO.setOrderIndex(quizQuestion.getOrderIndex());
+		quizQuestionDTO.setQuestion(quizQuestion.getQuestion());
+
+		// set option
+		if (quizQuestion.getType() == EQuizType.MULTIPLE_CHOICE) {
+			quizQuestionDTO.setOption(mapToFullQuizQuestionOptionDTO(quizQuestion.getOption()));
+		}
+
+		// set pairs
+		if (quizQuestion.getType() == EQuizType.CARD_MATCHING) {
+		List<FullCardMatchingPairDTO> pairs = new ArrayList<>();
+		for (CardMatchingPair pair : quizQuestion.getPairs()) {
+			FullCardMatchingPairDTO pairDTO = mapToFullCardMatchingPairDTO(pair);
+				pairs.add(pairDTO);
+			}
+			quizQuestionDTO.setPairs(pairs);
+		}
+		return quizQuestionDTO;
+	}
+
+	public static FullQuizQuestionOptionDTO mapToFullQuizQuestionOptionDTO(QuizQuestionOption option) {
+		FullQuizQuestionOptionDTO optionDTO = new FullQuizQuestionOptionDTO();
+		optionDTO.setId(option.getId());
+		optionDTO.setOptionText1(option.getOptionText1());
+		optionDTO.setOptionText2(option.getOptionText2());
+		optionDTO.setOptionText3(option.getOptionText3());
+		optionDTO.setCorrectOption(option.getCorrectOption());
+		return optionDTO;
+	}
+
+	public static FullCardMatchingPairDTO mapToFullCardMatchingPairDTO(CardMatchingPair pair) {
+		FullCardMatchingPairDTO pairDTO = new FullCardMatchingPairDTO();
+		pairDTO.setId(pair.getId());
+		pairDTO.setPrompt(pair.getPrompt());
+		pairDTO.setAnswer(pair.getAnswer());
+		pairDTO.setOrderIndex(pair.getOrderIndex());
+		return pairDTO;
 	}
 }
