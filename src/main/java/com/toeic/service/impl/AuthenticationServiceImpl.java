@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.toeic.dto.request.ActivateRequest;
 import com.toeic.dto.request.LoginRequest;
 import com.toeic.dto.request.RegisterRequest;
+import com.toeic.dto.request.ResetPassRequest;
 import com.toeic.dto.response.LoginResponse;
 import com.toeic.entity.User;
 import com.toeic.exception.InvalidCredentialsException;
@@ -76,9 +77,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
 			final String siteURL = "http://localhost:5173/register/verify?email=" + user.getEmail();
 			final String subject = "TOEIC Study - Account activation";
-			final String body = "<p>To complete the registration process, please enter your OTP: " + otp + " in the following link: </p>"
-					+ "<a href=\"" + siteURL + "\">Active now!</a>" 
-					+ "<br/>" + "<b>Reminder: OTP is only valid for 5 minutes</b>";
+			final String body = "<p>To complete the registration process, please enter your OTP: " + otp
+					+ " in the following link: </p>" + "<a href=\"" + siteURL + "\">Active now!</a>" + "<br/>"
+					+ "<b>Reminder: OTP is only valid for 5 minutes</b>";
 
 			emailService.sendEmail(user.getEmail(), subject, body);
 			User createdUser = userRepository.save(user);
@@ -87,12 +88,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			throw e;
 		}
 	}
-	
+
 	private String generateOtp() {
-        Random random = new Random();
-        int otp = 100000 + random.nextInt(900000); // 6-digit OTP
-        return String.valueOf(otp);
-    }
+		Random random = new Random();
+		int otp = 100000 + random.nextInt(900000); // 6-digit OTP
+		return String.valueOf(otp);
+	}
 
 	private boolean isValidEmail(String email) {
 		pattern = Pattern.compile(EMAIL_PATTERN);
@@ -106,7 +107,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public boolean activateAccount(ActivateRequest activateRequest) {
-		User user = userRepository.findByEmail(activateRequest.getEmail()).orElseThrow(() -> new UserNotFoundException("User not found"));
+		User user = userRepository.findByEmail(activateRequest.getEmail())
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		if (user.getOtp().equals(activateRequest.getOtp()) && user.getOtpExpiry().isAfter(LocalDateTime.now())) {
 			user.setActivated(true);
@@ -120,8 +122,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public LoginResponse login(LoginRequest loginRequest) {
-		
-		// khởi tạo một đối tượng authentication để thực hiện xác thực qua lớp Username Password
+
+		// khởi tạo một đối tượng authentication để thực hiện xác thực qua lớp Username
+		// Password
 		Authentication authentication;
 
 		try {
@@ -147,5 +150,56 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 
 		return loginResponse;
+	}
+
+	@Override
+	public void forgotPassword(String email) throws MessagingException {
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new UserNotFoundException("Unknown user with email: " + email));
+
+		if (!user.isActivated()) {
+			throw new InvalidCredentialsException("User isn't activated, please activate user account first!");
+		}
+
+		if (user.isActivated() && user.getOtp() != null && user.getOtpExpiry().isAfter(LocalDateTime.now())) {
+			throw new InvalidCredentialsException("You can only send forgot password request per 5 minutes");
+		}
+
+		try {
+			String otp = generateOtp();
+			user.setOtp(otp);
+			user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
+			String siteURL = "http://localhost:5173/forgot-password/verify?email=" + user.getEmail();
+			String subject = "TOEIC Study - Forgot Password";
+			String body = "<p>To complete the reset process, please enter your OTP: " + otp
+					+ " in the following link: </p>" + "<a href=\"" + siteURL + "\">Active now!</a>" + "<br/>"
+					+ "<b>Reminder: OTP is only valid for 5 minutes</b>";
+
+			emailService.sendEmail(user.getEmail(), subject, body);
+			User createdUser = userRepository.save(user);
+		} catch (MessagingException e) {
+			throw e;
+		}
+	}
+
+	@Override
+	public void resetPassword(ResetPassRequest resetPassRequest) {
+		User user = userRepository.findByEmail(resetPassRequest.getEmail()).orElseThrow(
+				() -> new UserNotFoundException("Unknown user with email: " + resetPassRequest.getEmail()));
+
+		// validate the password
+		if (!isValidPassword(resetPassRequest.getNewPassword())) {
+			throw new InvalidPasswordException(
+					"Password must be at least 6 characters long and include both letters and numbers.");
+		}
+
+		if (user.getOtp().equals(resetPassRequest.getOtp()) && user.getOtpExpiry().isAfter(LocalDateTime.now())) {
+			user.setPassword(passwordEncoder.encode(resetPassRequest.getNewPassword()));
+			user.setOtp(null);
+			user.setOtpExpiry(null);
+			userRepository.save(user);
+			return;
+		}
+		throw new InvalidOtpException("Invalid or expired OTP, please resend a forgot password request");
 	}
 }

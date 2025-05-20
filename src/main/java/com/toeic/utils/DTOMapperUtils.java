@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 
+import com.toeic.dto.response.CommentDTO;
 import com.toeic.dto.response.PartDTO;
 import com.toeic.dto.response.QuestionDTO;
 import com.toeic.dto.response.QuestionGroupDTO;
@@ -17,6 +18,7 @@ import com.toeic.dto.response.TestInfoPagingDTO;
 import com.toeic.dto.response.UserAnswerDTO;
 import com.toeic.dto.response.UserDTO;
 import com.toeic.dto.response.UserResultDTO;
+import com.toeic.entity.Comment;
 import com.toeic.entity.Part;
 import com.toeic.entity.Question;
 import com.toeic.entity.QuestionGroup;
@@ -215,5 +217,35 @@ public class DTOMapperUtils {
 		userDTO.setRole(user.getRole().name());
 		userDTO.setActivated(user.isActivated());
 		return userDTO;
+	}
+	
+	public static CommentDTO mapToCommentDTO(Comment comment) {
+		if (comment == null) {
+			return null;
+		}
+		
+		CommentDTO commentDTO = new CommentDTO();
+		commentDTO.setId(comment.getId());
+		commentDTO.setContent(comment.getContent());
+		commentDTO.setCreatedAt(comment.getCreatedAt());
+		commentDTO.setUpdatedAt(comment.getUpdatedAt());
+		commentDTO.setUserId(comment.getUser().getId());
+		commentDTO.setUsername(comment.getUser().getFullname());
+		commentDTO.setTestId(comment.getTest().getId());
+		
+		if (comment.getParent() != null) {
+			commentDTO.setParentId(comment.getParent().getId());
+		}
+		
+		// Đệ quy Map children
+		List<CommentDTO> childrenDTO = new ArrayList<>();
+		if (comment.getChildren() != null && !comment.getChildren().isEmpty()) {
+			for (Comment child : comment.getChildren()) {
+				CommentDTO childDTO = mapToCommentDTO(child);
+				childrenDTO.add(childDTO);
+			}
+		}
+		commentDTO.setChildren(childrenDTO);
+		return commentDTO;
 	}
 }

@@ -3,6 +3,7 @@ package com.toeic.service;
 import com.toeic.dto.request.ActivateRequest;
 import com.toeic.dto.request.LoginRequest;
 import com.toeic.dto.request.RegisterRequest;
+import com.toeic.dto.request.ResetPassRequest;
 import com.toeic.dto.response.LoginResponse;
 import com.toeic.entity.User;
 
@@ -12,4 +13,6 @@ public interface AuthenticationService {
 	User register(RegisterRequest registerRequest) throws MessagingException;
 	boolean activateAccount(ActivateRequest activateRequest);
 	LoginResponse login(LoginRequest loginRequest);
+	void forgotPassword(String email) throws MessagingException;
+	void resetPassword(ResetPassRequest resetPassRequest);
 }

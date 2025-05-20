@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toeic.dto.response.ApiResponse;
@@ -36,6 +38,22 @@ public class UserController {
 		List<ResultHistoryByTest> testHistory = userService.getTestHistory(user);
 		ApiResponse<List<ResultHistoryByTest>> response = ApiResponse.success(
 				HttpStatus.OK, "Get test history successfully", testHistory);
+		return ResponseEntity.ok(response);
+	}
+	
+	@PostMapping("/update")
+	public ResponseEntity<ApiResponse<String>> updateInfo(
+			HttpServletRequest request, 
+			@RequestParam(required = true) String fullname) {
+		String authorizationHeader = request.getHeader("Authorization");
+		String token = authorizationHeader.substring(7);
+		User user = accountService.fetchAccount(token);
+		
+		user.setFullname(fullname);
+		userService.update(user);
+		
+		ApiResponse<String> response = ApiResponse.success(
+				HttpStatus.OK, "Info updated", fullname);
 		return ResponseEntity.ok(response);
 	}
 }

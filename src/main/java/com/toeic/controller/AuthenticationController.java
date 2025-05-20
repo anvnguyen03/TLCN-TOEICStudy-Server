@@ -6,11 +6,13 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.toeic.dto.request.ActivateRequest;
 import com.toeic.dto.request.LoginRequest;
 import com.toeic.dto.request.RegisterRequest;
+import com.toeic.dto.request.ResetPassRequest;
 import com.toeic.dto.response.ApiResponse;
 import com.toeic.dto.response.LoginResponse;
 import com.toeic.entity.User;
@@ -51,4 +53,17 @@ public class AuthenticationController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
+	@PostMapping("/forgot-password")
+	public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestParam(required = true) String email) throws MessagingException {
+		authenticationService.forgotPassword(email);
+		ApiResponse<String> response = ApiResponse.success(HttpStatus.OK, "Check your email for next steps.", null);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@PostMapping("/forgot-password/reset-password")
+	public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody ResetPassRequest resetPassRequest) {
+		authenticationService.resetPassword(resetPassRequest);
+		ApiResponse<String> response = ApiResponse.success(HttpStatus.OK, "Your password has been changed successfully!", null);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 }

@@ -1,5 +1,6 @@
 package com.toeic.service.impl;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.toeic.entity.User;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class AccountServiceImpl implements AccountService{
 	private final UserRepository userRepository;
 	private final JWTService jwtService;
+	private final PasswordEncoder passwordEncoder;
 	
 	@Override
 	public User fetchAccount(String token) {
@@ -29,4 +31,18 @@ public class AccountServiceImpl implements AccountService{
 		return user;
 	}
 	
+	@Override
+	public User changePassword(User user, String password, String newPassword) {
+
+		if (!passwordEncoder.matches(password, user.getPassword())) {
+			throw new InvalidCredentialsException("Password is not correct");
+		}
+		
+		if (newPassword.equals(password)) {
+			return user;
+		}
+
+		user.setPassword(passwordEncoder.encode(newPassword));
+		return userRepository.save(user);
+	}
 }

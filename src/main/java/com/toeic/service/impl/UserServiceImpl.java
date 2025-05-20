@@ -74,16 +74,13 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<ResultHistoryByTest> getTestHistory(User user) {
 		List<UserResult> userResults = userResultRepository.findByUserId(user.getId());
-		List<UserResultDTO> resultsDTO = userResults.stream()
-													.map(DTOMapperUtils::mapToUserResultDTO)
-													.collect(Collectors.toList());
-		// nhóm các resultDTO theo test title 
+		List<UserResultDTO> resultsDTO = userResults.stream().map(DTOMapperUtils::mapToUserResultDTO)
+				.collect(Collectors.toList());
+		// nhóm các resultDTO theo test title
 		Map<String, List<UserResultDTO>> groupedByTest = resultsDTO.stream()
-																.collect(Collectors.groupingBy(UserResultDTO::getTestTitle));
-		
-		
-		return groupedByTest.entrySet().stream()
-				.map(entry -> new ResultHistoryByTest(entry.getKey(), entry.getValue()))
+				.collect(Collectors.groupingBy(UserResultDTO::getTestTitle));
+
+		return groupedByTest.entrySet().stream().map(entry -> new ResultHistoryByTest(entry.getKey(), entry.getValue()))
 				.collect(Collectors.toList());
 	}
 

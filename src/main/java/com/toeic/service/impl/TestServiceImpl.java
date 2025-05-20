@@ -37,6 +37,7 @@ import com.toeic.dto.response.ETestItemType;
 import com.toeic.dto.response.TestInfoDTO;
 import com.toeic.dto.response.TestInfoPagingDTO;
 import com.toeic.dto.response.UserResultDTO;
+import com.toeic.entity.Comment;
 import com.toeic.entity.ETestStatus;
 import com.toeic.entity.Part;
 import com.toeic.entity.Question;
@@ -48,6 +49,7 @@ import com.toeic.entity.User;
 import com.toeic.entity.UserAnswer;
 import com.toeic.entity.UserResult;
 import com.toeic.exception.ResourceNotFoundException;
+import com.toeic.repository.CommentRepository;
 import com.toeic.repository.PartRepository;
 import com.toeic.repository.QuestionGroupImageRepository;
 import com.toeic.repository.QuestionGroupRepository;
@@ -73,6 +75,7 @@ public class TestServiceImpl implements TestService{
 	private final QuestionRepository questionRepository;
 	private final UserResultRepository userResultRepository;
 	private final UserAnswerRepository userAnswerRepository;
+	private final CommentRepository commentRepository;
 	private final Cloudinary cloudinary;
 	
 	@Override
@@ -479,6 +482,12 @@ public class TestServiceImpl implements TestService{
 			List<Part> parts = partRepository.findByTestId(testId);
 			for (Part part : parts) {
 				partRepository.delete(part);
+			}
+			
+			List<Comment> comments = commentRepository.findByTestId(testId);
+			for (Comment comment : comments) {
+				// CascadeType.All + orphanRemoval tự động delete toàn bộ children comment
+				commentRepository.delete(comment);
 			}
 			
 			Map<String, Object> options = ObjectUtils.asMap(
