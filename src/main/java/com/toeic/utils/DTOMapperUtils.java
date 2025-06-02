@@ -7,6 +7,11 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 
 import com.toeic.dto.response.CommentDTO;
+import com.toeic.dto.response.CourseCardDTO;
+import com.toeic.dto.response.CourseInfoDTO;
+import com.toeic.dto.response.CourseReviewDTO;
+import com.toeic.dto.response.CourseSectionPreviewDTO;
+import com.toeic.dto.response.LessonPreviewDTO;
 import com.toeic.dto.response.PartDTO;
 import com.toeic.dto.response.QuestionDTO;
 import com.toeic.dto.response.QuestionGroupDTO;
@@ -19,6 +24,10 @@ import com.toeic.dto.response.UserAnswerDTO;
 import com.toeic.dto.response.UserDTO;
 import com.toeic.dto.response.UserResultDTO;
 import com.toeic.entity.Comment;
+import com.toeic.entity.Course;
+import com.toeic.entity.CourseReview;
+import com.toeic.entity.CourseSection;
+import com.toeic.entity.Lesson;
 import com.toeic.entity.Part;
 import com.toeic.entity.Question;
 import com.toeic.entity.QuestionGroup;
@@ -247,5 +256,87 @@ public class DTOMapperUtils {
 		}
 		commentDTO.setChildren(childrenDTO);
 		return commentDTO;
+	}
+
+	public static CourseCardDTO mapToCourseCardDTO(Course course) {
+		CourseCardDTO courseCardDTO = new CourseCardDTO();
+		courseCardDTO.setId(course.getId());
+		courseCardDTO.setTitle(course.getTitle());
+		courseCardDTO.setLevel(course.getLevel().name());
+		courseCardDTO.setPrice(course.getPrice().doubleValue());
+		courseCardDTO.setImage(course.getThumbnail_url());
+		
+		return courseCardDTO;
+	}
+
+	public static CourseInfoDTO mapToCourseInfoDTO(Course course) {
+		CourseInfoDTO courseInfoDTO = new CourseInfoDTO();
+		courseInfoDTO.setId(course.getId());
+		courseInfoDTO.setTitle(course.getTitle());
+		courseInfoDTO.setDescription(course.getDescription());
+		courseInfoDTO.setObjective(course.getObjective());
+		courseInfoDTO.setThumbnailUrl(course.getThumbnail_url());
+		courseInfoDTO.setPreviewVideoUrl(course.getPreview_video_url());
+		courseInfoDTO.setPrice(course.getPrice().doubleValue());
+		courseInfoDTO.setTotalReviews(course.getReviews().size());
+		courseInfoDTO.setStudents(course.getEnrollments().size());
+		courseInfoDTO.setTotalSections(course.getSections().size());
+		courseInfoDTO.setTotalLessons(course.getSections().stream()
+				.mapToInt(section -> section.getLessons().size())
+				.sum());
+				
+		// set sections
+		List<CourseSectionPreviewDTO> sections = new ArrayList<>();
+		for (CourseSection section : course.getSections()) {
+			CourseSectionPreviewDTO sectionDTO = mapToCourseSectionPreviewDTO(section);
+			sections.add(sectionDTO);
+		}
+		courseInfoDTO.setSections(sections);
+		return courseInfoDTO;
+	}
+
+	public static CourseSectionPreviewDTO mapToCourseSectionPreviewDTO(CourseSection section) {
+		CourseSectionPreviewDTO sectionDTO = new CourseSectionPreviewDTO();
+		sectionDTO.setId(section.getId());
+		sectionDTO.setTitle(section.getTitle());
+		sectionDTO.setOrderIndex(section.getOrderIndex());
+		sectionDTO.setTotalLessons(section.getLessons().size());
+
+		// duration calculate from lessons
+		int duration = 0;
+		for (Lesson lesson : section.getLessons()) {
+			duration += lesson.getDuration();
+		}
+		sectionDTO.setDuration(duration);
+
+		// set lessons
+		List<LessonPreviewDTO> lessons = new ArrayList<>();
+		for (Lesson lesson : section.getLessons()) {
+			LessonPreviewDTO lessonDTO = mapToLessonPreviewDTO(lesson);
+			lessons.add(lessonDTO);
+		}
+		sectionDTO.setLessons(lessons);
+		return sectionDTO;
+	}
+
+	public static LessonPreviewDTO mapToLessonPreviewDTO(Lesson lesson) {
+		LessonPreviewDTO lessonDTO = new LessonPreviewDTO();
+		lessonDTO.setId(lesson.getId());
+		lessonDTO.setTitle(lesson.getTitle());
+		lessonDTO.setOrderIndex(lesson.getOrderIndex());
+		lessonDTO.setDuration(lesson.getDuration());
+		lessonDTO.setType(lesson.getType());
+		lessonDTO.setFree(lesson.getIsFree());
+		return lessonDTO;
+	}
+
+	public static CourseReviewDTO mapToCourseReviewDTO(CourseReview review) {
+		CourseReviewDTO reviewDTO = new CourseReviewDTO();
+		reviewDTO.setId(review.getId());
+		reviewDTO.setComment(review.getComment());
+		reviewDTO.setRating(review.getRating());
+		reviewDTO.setUsername(review.getUser().getFullname());
+		reviewDTO.setCreatedAt(review.getCreatedAt());
+		return reviewDTO;
 	}
 }

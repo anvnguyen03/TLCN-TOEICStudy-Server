@@ -2,7 +2,8 @@ package com.toeic.entity;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -41,8 +42,8 @@ public class Lesson {
     @Enumerated(EnumType.STRING)
     private ELessonType type;
 
-    private Integer duration;
-    private Integer order_index;
+    private Integer duration; // in minutes
+    private Integer orderIndex;
     private Boolean isFree;
 
     // For text lessons
@@ -50,15 +51,15 @@ public class Lesson {
     private String content;
 
     // For video lessons
-    private String video_url;
+    private String videoUrl;
 
     // For quiz lessons
     @OneToOne(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
     private Quiz quiz;
 
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime created_at;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime updated_at;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

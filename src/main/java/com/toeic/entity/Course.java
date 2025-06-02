@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -39,6 +40,8 @@ public class Course {
 
     private String thumbnail_url;
 
+    private String preview_video_url; // url of the preview video on youtube
+
     @Column(precision = 10, scale = 2)
     private BigDecimal price;
 
@@ -48,17 +51,19 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private ECourseLevel level;
 
-    private Integer total_duration;
-    private Integer total_lessons;
-    private Integer enrolled_students;
-
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<CourseSection> sections;
 
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime created_at;
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<CourseReview> reviews;
 
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime updated_at;
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<CourseEnrollment> enrollments;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;   
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
     
 }

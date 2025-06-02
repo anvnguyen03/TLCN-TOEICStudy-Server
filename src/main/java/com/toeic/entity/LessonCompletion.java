@@ -32,5 +32,5 @@ public class LessonCompletion {
     private Lesson lesson;
 
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime completed_at;
+    private LocalDateTime completedAt;
 }
