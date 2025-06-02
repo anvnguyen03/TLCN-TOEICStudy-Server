@@ -2,6 +2,8 @@ package com.toeic.entity;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
@@ -38,6 +40,6 @@ public class CourseReview {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime created_at;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 }

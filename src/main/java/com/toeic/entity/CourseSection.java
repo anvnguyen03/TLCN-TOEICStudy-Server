@@ -3,7 +3,8 @@ package com.toeic.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -39,9 +40,9 @@ public class CourseSection {
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL)
     private List<Lesson> lessons;
 
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime created_at;
+    @CreationTimestamp
+    private LocalDateTime createdAt;   
 
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime updated_at;    
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }
