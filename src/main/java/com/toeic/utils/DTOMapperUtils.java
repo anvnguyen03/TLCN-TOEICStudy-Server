@@ -1,21 +1,28 @@
 package com.toeic.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 
+import com.toeic.dto.response.CardMatchingQuestionDTO;
 import com.toeic.dto.response.CommentDTO;
 import com.toeic.dto.response.CourseCardDTO;
 import com.toeic.dto.response.CourseInfoDTO;
 import com.toeic.dto.response.CourseReviewDTO;
 import com.toeic.dto.response.CourseSectionPreviewDTO;
+import com.toeic.dto.response.LessonDetailDTO;
 import com.toeic.dto.response.LessonPreviewDTO;
+import com.toeic.dto.response.MatchingAnswerDTO;
+import com.toeic.dto.response.MatchingPromptDTO;
 import com.toeic.dto.response.PartDTO;
 import com.toeic.dto.response.QuestionDTO;
 import com.toeic.dto.response.QuestionGroupDTO;
 import com.toeic.dto.response.QuestionGroupImageDTO;
+import com.toeic.dto.response.QuizQuestionDTO;
+import com.toeic.dto.response.QuizQuestionOptionDTO;
 import com.toeic.dto.response.ReviewQuestionDTO;
 import com.toeic.dto.response.TestCategoryDTO;
 import com.toeic.dto.response.TestInfoDTO;
@@ -23,15 +30,20 @@ import com.toeic.dto.response.TestInfoPagingDTO;
 import com.toeic.dto.response.UserAnswerDTO;
 import com.toeic.dto.response.UserDTO;
 import com.toeic.dto.response.UserResultDTO;
+import com.toeic.entity.CardMatchingPair;
 import com.toeic.entity.Comment;
 import com.toeic.entity.Course;
 import com.toeic.entity.CourseReview;
 import com.toeic.entity.CourseSection;
+import com.toeic.entity.ELessonType;
+import com.toeic.entity.EQuizType;
 import com.toeic.entity.Lesson;
 import com.toeic.entity.Part;
 import com.toeic.entity.Question;
 import com.toeic.entity.QuestionGroup;
 import com.toeic.entity.QuestionGroupImage;
+import com.toeic.entity.QuizQuestion;
+import com.toeic.entity.QuizQuestionOption;
 import com.toeic.entity.Test;
 import com.toeic.entity.TestCategory;
 import com.toeic.entity.User;
@@ -358,4 +370,80 @@ public class DTOMapperUtils {
 		reviewDTO.setCreatedAt(review.getCreatedAt());
 		return reviewDTO;
 	}
+
+	public static LessonDetailDTO mapToLessonDetailDTO(Lesson lesson) {
+		LessonDetailDTO lessonDTO = new LessonDetailDTO();
+		lessonDTO.setId(lesson.getId());
+		lessonDTO.setTitle(lesson.getTitle());
+		lessonDTO.setDescription(lesson.getDescription());
+		lessonDTO.setOrderIndex(lesson.getOrderIndex());
+		lessonDTO.setType(lesson.getType().name());
+		lessonDTO.setDuration(lesson.getDuration());
+		lessonDTO.setIsFree(lesson.getIsFree());
+
+		if (lesson.getType() == ELessonType.TEXT) {
+			lessonDTO.setContent(lesson.getContent());
+		} else if (lesson.getType() == ELessonType.VIDEO) {
+			lessonDTO.setVideoUrl(lesson.getVideoUrl());
+		}
+
+		List<QuizQuestionDTO> quizQuestions = new ArrayList<>();
+		for (QuizQuestion quizQuestion : lesson.getQuizQuestions()) {
+			QuizQuestionDTO quizQuestionDTO = mapToQuizQuestionDTO(quizQuestion);
+			quizQuestions.add(quizQuestionDTO);
+		}
+		lessonDTO.setQuizQuestions(quizQuestions);
+
+		return lessonDTO;
+	}
+
+	public static QuizQuestionDTO mapToQuizQuestionDTO(QuizQuestion quizQuestion) {
+		QuizQuestionDTO quizQuestionDTO = new QuizQuestionDTO();
+		quizQuestionDTO.setId(quizQuestion.getId());
+		quizQuestionDTO.setType(quizQuestion.getType().name());
+		quizQuestionDTO.setOrderIndex(quizQuestion.getOrderIndex());
+		quizQuestionDTO.setQuestion(quizQuestion.getQuestion());
+
+		if (quizQuestion.getType() == EQuizType.MULTIPLE_CHOICE) {
+			quizQuestionDTO.setOption(mapToQuizQuestionOptionDTO(quizQuestion.getOption()));
+		} else if (quizQuestion.getType() == EQuizType.CARD_MATCHING) {
+			// Get all pairs
+			List<CardMatchingPair> pairs = quizQuestion.getPairs();
+			// Create prompts and answers in parallel
+			List<MatchingPromptDTO> prompts = new ArrayList<>();
+			List<MatchingAnswerDTO> answers = new ArrayList<>();
+			
+			for (CardMatchingPair pair : pairs) {
+				MatchingPromptDTO prompt = new MatchingPromptDTO();
+				prompt.setId(pair.getId());
+				prompt.setContent(pair.getPrompt());
+				prompts.add(prompt);
+
+				MatchingAnswerDTO answer = new MatchingAnswerDTO();
+				answer.setContent(pair.getAnswer());
+				answers.add(answer);
+			}
+
+			// Shuffle both lists
+			Collections.shuffle(prompts);
+			Collections.shuffle(answers);
+
+			// Create matching pairs
+			CardMatchingQuestionDTO pairsDTO = new CardMatchingQuestionDTO();
+			pairsDTO.setPrompts(prompts);
+			pairsDTO.setAnswers(answers);
+			quizQuestionDTO.setPairs(pairsDTO);
+		}
+		return quizQuestionDTO;
+	}
+
+	public static QuizQuestionOptionDTO mapToQuizQuestionOptionDTO(QuizQuestionOption option) {
+		QuizQuestionOptionDTO optionDTO = new QuizQuestionOptionDTO();
+		optionDTO.setId(option.getId());
+		optionDTO.setOptionText1(option.getOptionText1());
+		optionDTO.setOptionText2(option.getOptionText2());
+		optionDTO.setOptionText3(option.getOptionText3());
+		return optionDTO;
+	}
+	
 }

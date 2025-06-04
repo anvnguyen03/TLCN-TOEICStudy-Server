@@ -14,6 +14,7 @@ import com.toeic.dto.response.ApiResponse;
 import com.toeic.dto.response.CourseCardDTO;
 import com.toeic.dto.response.CourseInfoDTO;
 import com.toeic.dto.response.CourseReviewDTO;
+import com.toeic.dto.response.LessonDetailDTO;
 import com.toeic.service.CourseService;
 
 import lombok.RequiredArgsConstructor;
@@ -47,4 +48,10 @@ public class CourseController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{courseId}/free-lessons")
+    public ResponseEntity<ApiResponse<List<LessonDetailDTO>>> getFreeLessonsOfCourse(@PathVariable Long courseId) {
+        List<LessonDetailDTO> lessons = courseService.getFreeLessonsOfCourse(courseId);
+        ApiResponse<List<LessonDetailDTO>> response = ApiResponse.success(HttpStatus.OK, "Get free lessons of course successfully", lessons);
+        return ResponseEntity.ok(response);
+    }
 }
