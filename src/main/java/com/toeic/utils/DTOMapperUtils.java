@@ -235,8 +235,27 @@ public class DTOMapperUtils {
 		userDTO.setId(user.getId());
 		userDTO.setFullname(user.getFullname());
 		userDTO.setEmail(user.getEmail());
-		userDTO.setRole(user.getRole().name());
+		userDTO.setRole(user.getRole());
 		userDTO.setActivated(user.isActivated());
+		
+		// Map personal information
+		userDTO.setPhone(user.getPhone());
+		userDTO.setAddress(user.getAddress());
+		userDTO.setDateOfBirth(user.getDateOfBirth());
+		userDTO.setGender(user.getGender());
+		userDTO.setAvatar(user.getAvatar());
+		
+		// Map education information
+		userDTO.setEducation(user.getEducation());
+		userDTO.setOccupation(user.getOccupation());
+		userDTO.setEnglishLevel(user.getEnglishLevel());
+		userDTO.setTargetScore(user.getTargetScore());
+		
+		// Map account information
+		userDTO.setLastLogin(user.getLastLogin());
+		userDTO.setCreatedAt(user.getCreatedAt());
+		userDTO.setUpdatedAt(user.getUpdatedAt());
+		
 		return userDTO;
 	}
 	
