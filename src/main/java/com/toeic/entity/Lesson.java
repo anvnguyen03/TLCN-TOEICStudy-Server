@@ -1,6 +1,7 @@
 package com.toeic.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -15,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -53,9 +55,9 @@ public class Lesson {
     // For video lessons
     private String videoUrl;
 
-    // For quiz lessons
-    @OneToOne(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Quiz quiz;
+    // For quiz lessons - A lesson can have multiple quiz questions but with the same quiz type
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuizQuestion> quizQuestions;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

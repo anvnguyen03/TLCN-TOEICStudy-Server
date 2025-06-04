@@ -2,6 +2,9 @@ package com.toeic.entity;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
@@ -10,7 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,18 +27,27 @@ public class QuizQuestionOption {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "question_id")
-    private QuizQuestion question;
+    @OneToOne
+    @JoinColumn(name = "quiz_question_id")
+    private QuizQuestion quizQuestion;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String option_text;
+    private String optionText1;
 
-    private Integer order_index;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String optionText2;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String optionText3;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String correctOption;
 
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime created_at;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime updated_at;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

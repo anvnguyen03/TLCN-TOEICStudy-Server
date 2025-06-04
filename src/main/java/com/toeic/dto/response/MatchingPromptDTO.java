@@ -1,0 +1,9 @@
+package com.toeic.dto.response;
+
+import lombok.Data;
+
+@Data
+public class MatchingPromptDTO {
+    private Long id;
+    private String content;
+}

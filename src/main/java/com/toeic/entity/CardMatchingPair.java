@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,8 +26,8 @@ public class CardMatchingPair {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "question_id")
-    private QuizQuestion question;
+    @JoinColumn(name = "quiz_question_id")
+    private QuizQuestion quizQuestion;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String prompt;

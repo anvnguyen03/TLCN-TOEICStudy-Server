@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.toeic.dto.response.CourseCardDTO;
 import com.toeic.dto.response.CourseInfoDTO;
 import com.toeic.dto.response.CourseReviewDTO;
+import com.toeic.dto.response.LessonDetailDTO;
 import com.toeic.entity.Course;
 import com.toeic.entity.CourseReview;
 import com.toeic.entity.ECourseStatus;
@@ -106,6 +107,25 @@ public class CourseServiceImpl implements CourseService {
         return reviews.stream()
                 .map(DTOMapperUtils::mapToCourseReviewDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LessonDetailDTO> getFreeLessonsOfCourse(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
+
+        List<Lesson> freeLessons = course.getSections().stream()
+                .flatMap(section -> section.getLessons().stream())
+                .filter(lesson -> lesson.getIsFree())
+                .collect(Collectors.toList());
+
+        // map to DTO
+        List<LessonDetailDTO> lessonDetailDTOs = freeLessons.stream()
+                .map(DTOMapperUtils::mapToLessonDetailDTO)
+                .collect(Collectors.toList());
+
+        return lessonDetailDTOs;
+
     }
 
 }
