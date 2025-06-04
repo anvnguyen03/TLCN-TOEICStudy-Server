@@ -50,36 +50,4 @@ public class Test {
 	@OneToMany(mappedBy = "test", cascade = CascadeType.ALL)
     private List<UserResult> userResults;
 
-	// Getters and setters for relationship fields
-	public TestCategory getTestCategory() {
-		return testCategory;
-	}
-
-	public void setTestCategory(TestCategory testCategory) {
-		this.testCategory = testCategory;
-	}
-
-	public List<Part> getParts() {
-		return parts;
-	}
-
-	public void setParts(List<Part> parts) {
-		this.parts = parts;
-	}
-
-	public List<Question> getQuestions() {
-		return questions;
-	}
-
-	public void setQuestions(List<Question> questions) {
-		this.questions = questions;
-	}
-
-	public List<UserResult> getUserResults() {
-		return userResults;
-	}
-
-	public void setUserResults(List<UserResult> userResults) {
-		this.userResults = userResults;
-	}
 }
