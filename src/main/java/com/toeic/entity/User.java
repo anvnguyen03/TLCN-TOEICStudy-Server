@@ -1,6 +1,7 @@
 package com.toeic.entity;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,12 +50,38 @@ public class User implements UserDetails {
 	private ERole role = ERole.USER;
 	
 	private boolean isActivated = false;
-	
+		
 	@JsonIgnore
 	private String otp;
 	
 	@JsonIgnore
 	private LocalDateTime otpExpiry;
+
+	// Personal Information
+	private String phone;
+	private String address;
+	private LocalDate dateOfBirth;
+	
+	@Enumerated(EnumType.STRING)
+	private EGender gender;
+	
+	private String avatar;
+
+	// Education Information
+	private String education;
+	private String occupation;
+	private String englishLevel;
+	private Integer targetScore;
+
+	// Account Information
+	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+	private LocalDateTime lastLogin;
+	
+	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+	private LocalDateTime createdAt;
+	
+	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+	private LocalDateTime updatedAt;
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -94,5 +122,7 @@ public class User implements UserDetails {
 		this.fullname = fullname;
 		this.email = email;
 		this.password = password;
+		this.createdAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
 	}
 }

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -113,10 +114,27 @@ public class UserServiceImpl implements UserService {
 			throw new RuntimeException("Email is already taken");
 		}
 
+		// Update basic information
 		user.setFullname(request.getFullname());
 		user.setEmail(request.getEmail());
 		user.setRole(request.getRole());
 		user.setActivated(request.isActivated());
+		
+		// Update personal information
+		user.setPhone(request.getPhone());
+		user.setAddress(request.getAddress());
+		user.setDateOfBirth(request.getDateOfBirth());
+		user.setGender(request.getGender());
+		user.setAvatar(request.getAvatar());
+		
+		// Update education information
+		user.setEducation(request.getEducation());
+		user.setOccupation(request.getOccupation());
+		user.setEnglishLevel(request.getEnglishLevel());
+		user.setTargetScore(request.getTargetScore());
+		
+		// Update timestamp
+		user.setUpdatedAt(LocalDateTime.now());
 
 		User updatedUser = userRepository.save(user);
 		return DTOMapperUtils.mapToUserDTO(updatedUser);
