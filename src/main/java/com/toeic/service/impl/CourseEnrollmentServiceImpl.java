@@ -3,7 +3,6 @@ package com.toeic.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -12,8 +11,6 @@ import com.toeic.entity.Course;
 import com.toeic.entity.CourseEnrollment;
 import com.toeic.entity.CourseReview;
 import com.toeic.entity.EEnrollmentStatus;
-import com.toeic.entity.Lesson;
-import com.toeic.entity.LessonCompletion;
 import com.toeic.entity.User;
 import com.toeic.exception.ResourceNotFoundException;
 import com.toeic.exception.UserNotFoundException;

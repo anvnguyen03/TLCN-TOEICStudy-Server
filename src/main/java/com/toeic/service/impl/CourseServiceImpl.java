@@ -21,7 +21,6 @@ import com.cloudinary.utils.ObjectUtils;
 import com.toeic.dto.request.CreateCardMatchingPairRequest;
 import com.toeic.dto.request.CreateCourseRequest;
 import com.toeic.dto.request.CreateLessonRequest;
-import com.toeic.dto.request.CreateQuizQuestionOptionRequest;
 import com.toeic.dto.request.CreateQuizQuestionRequest;
 import com.toeic.dto.request.CreateSectionRequest;
 import com.toeic.dto.response.CourseCardDTO;

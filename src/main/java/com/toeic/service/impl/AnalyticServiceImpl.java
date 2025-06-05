@@ -21,13 +21,11 @@ import com.toeic.dto.response.TestAnalyticsDTO.ScoreHistoryDTO;
 import com.toeic.dto.response.TestAnalyticsDTO.recentTestsDTO;
 import com.toeic.entity.Course;
 import com.toeic.entity.CourseEnrollment;
-import com.toeic.entity.Part;
 import com.toeic.entity.UserAnswer;
 import com.toeic.entity.UserResult;
 import com.toeic.exception.ResourceNotFoundException;
 import com.toeic.repository.CourseEnrollmentRepository;
 import com.toeic.repository.CourseRepository;
-import com.toeic.repository.PartRepository;
 import com.toeic.repository.UserAnswerRepository;
 import com.toeic.repository.UserRepository;
 import com.toeic.repository.UserResultRepository;
@@ -41,7 +39,6 @@ public class AnalyticServiceImpl implements AnalyticService {
 
     private final UserResultRepository userResultRepository;
     private final UserAnswerRepository userAnswerRepository;
-    private final PartRepository partRepository;
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
