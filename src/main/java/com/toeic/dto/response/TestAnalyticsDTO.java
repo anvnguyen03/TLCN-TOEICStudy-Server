@@ -1,4 +1,4 @@
-package com.toeic.dto;
+package com.toeic.dto.response;
 
 import java.time.LocalDate;
 import java.util.List;

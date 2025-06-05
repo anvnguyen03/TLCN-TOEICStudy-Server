@@ -3,6 +3,7 @@ package com.toeic.service.impl;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -11,18 +12,24 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.toeic.dto.TestAnalyticsDTO;
-import com.toeic.dto.TestAnalyticsDTO.ImprovementStatsDTO;
-import com.toeic.dto.TestAnalyticsDTO.OverallStatsDTO;
-import com.toeic.dto.TestAnalyticsDTO.ScoreHistoryDTO;
-import com.toeic.dto.TestAnalyticsDTO.PartPerformanceDTO;
-import com.toeic.dto.TestAnalyticsDTO.recentTestsDTO;
+import com.toeic.dto.response.AdminDashboardStats;
+import com.toeic.dto.response.TestAnalyticsDTO;
+import com.toeic.dto.response.TestAnalyticsDTO.ImprovementStatsDTO;
+import com.toeic.dto.response.TestAnalyticsDTO.OverallStatsDTO;
+import com.toeic.dto.response.TestAnalyticsDTO.PartPerformanceDTO;
+import com.toeic.dto.response.TestAnalyticsDTO.ScoreHistoryDTO;
+import com.toeic.dto.response.TestAnalyticsDTO.recentTestsDTO;
+import com.toeic.entity.Course;
+import com.toeic.entity.CourseEnrollment;
 import com.toeic.entity.Part;
 import com.toeic.entity.UserAnswer;
 import com.toeic.entity.UserResult;
 import com.toeic.exception.ResourceNotFoundException;
+import com.toeic.repository.CourseEnrollmentRepository;
+import com.toeic.repository.CourseRepository;
 import com.toeic.repository.PartRepository;
 import com.toeic.repository.UserAnswerRepository;
+import com.toeic.repository.UserRepository;
 import com.toeic.repository.UserResultRepository;
 import com.toeic.service.AnalyticService;
 
@@ -35,6 +42,9 @@ public class AnalyticServiceImpl implements AnalyticService {
     private final UserResultRepository userResultRepository;
     private final UserAnswerRepository userAnswerRepository;
     private final PartRepository partRepository;
+    private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
+    private final CourseEnrollmentRepository courseEnrollmentRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -246,4 +256,160 @@ public class AnalyticServiceImpl implements AnalyticService {
         if (avgImprovement < -10) return "declining";
         return "stable";
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminDashboardStats getAdminDashboardStats() {
+        AdminDashboardStats stats = new AdminDashboardStats();
+
+        // Get last month users
+        stats.setLastMonthUsers((int) userRepository.findAll().stream()
+            .filter(user -> user.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)) && user.getCreatedAt().isBefore(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)))
+            .count());
+        
+        // Get last month test attempts
+        stats.setLastMonthTestAttemps((int) userResultRepository.findAll().stream()
+            .filter(result -> result.getCompleted_at().isAfter(LocalDateTime.now().minusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)) && result.getCompleted_at().isBefore(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)))
+            .count());
+        
+        // Get last month course enrollments
+        stats.setLastMonthCourseEnrollments((int) courseEnrollmentRepository.findAll().stream()
+            .filter(enrollment -> enrollment.getEnrolledAt().isAfter(LocalDateTime.now().minusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)) && enrollment.getEnrolledAt().isBefore(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)))
+            .count());
+        
+        // Get last month revenue
+        stats.setLastMonthRevenue((int) courseEnrollmentRepository.findAll().stream()
+            .filter(enrollment -> enrollment.getEnrolledAt().isAfter(LocalDateTime.now().minusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)) && enrollment.getEnrolledAt().isBefore(LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)))
+            .mapToDouble(enrollment -> enrollment.getCourse().getPrice().doubleValue())
+            .sum());
+
+        // Get total users
+        stats.setTotalUsers((int) userRepository.count());
+
+        // Get total test attempts
+        stats.setTestAttemps((int) userResultRepository.count());
+        
+        // Get total course enrollments
+        stats.setCourseEnrollments((int) courseEnrollmentRepository.count());
+        
+        // Calculate total and monthly revenue from course enrollments
+        List<CourseEnrollment> enrollments = courseEnrollmentRepository.findAll();
+        double totalRevenue = enrollments.stream()
+            .mapToDouble(enrollment -> enrollment.getCourse().getPrice().doubleValue())
+            .sum();
+        stats.setTotalRevenue((int) totalRevenue);
+        
+        // Calculate monthly revenue (this month)
+        LocalDateTime monthStart = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime monthEnd = monthStart.plusMonths(1);
+        
+        double currentMonthRevenue = enrollments.stream()
+            .filter(enrollment -> enrollment.getEnrolledAt().isAfter(monthStart) && enrollment.getEnrolledAt().isBefore(monthEnd))
+            .mapToDouble(enrollment -> enrollment.getCourse().getPrice().doubleValue())
+            .sum();
+        stats.setMonthlyRevenue((int) currentMonthRevenue);
+        
+        // Get top courses by rating
+        List<Course> courses = courseRepository.findAll();
+        List<AdminDashboardStats.TopCourse> topCourses = courses.stream()
+            .map(course -> {
+                AdminDashboardStats.TopCourse topCourse = stats.new TopCourse();
+                topCourse.setId(course.getId().intValue());
+                topCourse.setTitle(course.getTitle());
+                topCourse.setEnrollments(course.getEnrollments().size());
+                topCourse.setRevenue((int) (course.getPrice().doubleValue() * course.getEnrollments().size()));
+                
+                // Calculate average rating
+                double avgRating = course.getReviews().stream()
+                    .mapToDouble(review -> review.getRating())
+                    .average()
+                    .orElse(0);
+                topCourse.setRating(Math.round(avgRating * 100.0) / 100.0);
+                
+                return topCourse;
+            })
+            .sorted(Comparator.comparing(AdminDashboardStats.TopCourse::getRating).reversed())
+            .limit(3)
+            .collect(Collectors.toList());
+        stats.setTopCourses(topCourses);
+        
+        // Calculate revenue trend for last 6 months
+        AdminDashboardStats.RevenueTrend revenueTrend = new AdminDashboardStats.RevenueTrend();
+        List<String> revenueLabels = new ArrayList<>();
+        List<Integer> revenueData = new ArrayList<>();
+        
+        for (int i = 5; i >= 0; i--) {
+            LocalDateTime monthStart1 = LocalDateTime.now().minusMonths(i).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+            LocalDateTime monthEnd1 = monthStart1.plusMonths(1);
+            
+            double monthlyRevenue = enrollments.stream()
+                .filter(enrollment -> enrollment.getEnrolledAt().isAfter(monthStart1) && enrollment.getEnrolledAt().isBefore(monthEnd1))
+                .mapToDouble(enrollment -> enrollment.getCourse().getPrice().doubleValue())
+                .sum();
+            
+            revenueLabels.add(monthStart1.format(DateTimeFormatter.ofPattern("MMM yyyy")));
+            revenueData.add((int) monthlyRevenue);
+        }
+        
+        revenueTrend.setLabels(revenueLabels);
+        revenueTrend.setData(revenueData);
+        stats.setRevenueTrend(revenueTrend);
+        
+        // Calculate user growth for last 6 months
+        AdminDashboardStats.UserGrowth userGrowth = new AdminDashboardStats.UserGrowth();
+        List<String> userLabels = new ArrayList<>();
+        List<Integer> newUsers = new ArrayList<>();
+        List<Integer> activeUsers = new ArrayList<>();
+        
+        for (int i = 5; i >= 0; i--) {
+            LocalDateTime monthStart2 = LocalDateTime.now().minusMonths(i).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+            LocalDateTime monthEnd2 = monthStart2.plusMonths(1);
+            
+            // Count new users in this month
+            long newUsersCount = userRepository.findAll().stream()
+                .filter(user -> user.getCreatedAt().isAfter(monthStart2) && user.getCreatedAt().isBefore(monthEnd2))
+                .count();
+            
+            // Count active users in this month
+            long activeUsersCount = userRepository.findAll().stream()
+                .filter(user -> user.isActivated() && 
+                              user.getCreatedAt().isAfter(monthStart2) && 
+                              user.getCreatedAt().isBefore(monthEnd2))
+                .count();
+            
+            userLabels.add(monthStart2.format(DateTimeFormatter.ofPattern("MMM yyyy")));
+            newUsers.add((int) newUsersCount);
+            activeUsers.add((int) activeUsersCount);
+        }
+        
+        userGrowth.setLabels(userLabels);
+        userGrowth.setNewUsers(newUsers);
+        userGrowth.setActiveUsers(activeUsers);
+        stats.setUserGrowth(userGrowth);
+        
+        // Calculate test score distribution
+        AdminDashboardStats.TestScoreDistribution scoreDistribution = new AdminDashboardStats.TestScoreDistribution();
+        List<String> scoreLabels = Arrays.asList("0-200", "201-400", "401-600", "601-800", "801-990");
+        List<Integer> scoreData = new ArrayList<>();
+        
+        List<UserResult> allResults = userResultRepository.findAll();
+        for (String range : scoreLabels) {
+            String[] bounds = range.split("-");
+            int lower = Integer.parseInt(bounds[0]);
+            int upper = Integer.parseInt(bounds[1]);
+            
+            long count = allResults.stream()
+                .filter(result -> result.getTotal_score() >= lower && result.getTotal_score() <= upper)
+                .count();
+            
+            scoreData.add((int) count);
+        }
+        
+        scoreDistribution.setLabels(scoreLabels);
+        scoreDistribution.setData(scoreData);
+        stats.setTestScoreDistribution(scoreDistribution);
+        
+        return stats;
+    }
+
 }

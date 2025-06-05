@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -78,9 +80,11 @@ public class User implements UserDetails {
 	private LocalDateTime lastLogin;
 	
 	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+	@CreationTimestamp
 	private LocalDateTime createdAt;
 	
 	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 	
 	@Override

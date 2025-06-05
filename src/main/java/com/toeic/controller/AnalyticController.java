@@ -13,8 +13,8 @@ import com.toeic.service.AnalyticService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import com.toeic.dto.TestAnalyticsDTO;
 import com.toeic.dto.response.ApiResponse;
+import com.toeic.dto.response.TestAnalyticsDTO;
 import com.toeic.entity.User;
 
 import lombok.RequiredArgsConstructor;
