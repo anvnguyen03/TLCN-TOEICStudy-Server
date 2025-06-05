@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ import com.toeic.dto.response.ApiResponse;
 import com.toeic.dto.response.ResultHistoryByTest;
 import com.toeic.entity.User;
 import com.toeic.service.AccountService;
+import com.toeic.service.CourseEnrollmentService;
 import com.toeic.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +34,7 @@ public class UserController {
 	
 	private final UserService userService;
 	private final AccountService accountService;
+	private final CourseEnrollmentService courseEnrollmentService;
 	private final Cloudinary cloudinary;
 
 	@GetMapping("/test-history")
@@ -46,6 +49,18 @@ public class UserController {
 		return ResponseEntity.ok(response);
 	}
 	
+	// check if user already enrolled in course with courseId
+	@GetMapping("/check-enrollment/{courseId}")
+	public ResponseEntity<ApiResponse<Boolean>> checkEnrollment(HttpServletRequest request, @PathVariable Long courseId) {
+		String authorizationHeader = request.getHeader("Authorization");
+		String token = authorizationHeader.substring(7);
+		User user = accountService.fetchAccount(token);
+		Boolean isEnrolled = courseEnrollmentService.isEnrolled(user.getId(), courseId);
+		ApiResponse<Boolean> response = ApiResponse.success(
+				HttpStatus.OK, "Check enrollment successfully", isEnrolled);
+		return ResponseEntity.ok(response);
+	}
+
 	@PostMapping("/update")
 	public ResponseEntity<ApiResponse<String>> updateInfo(
 			HttpServletRequest request, 

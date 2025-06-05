@@ -38,6 +38,7 @@ public class CourseEnrollment {
     @Enumerated(EnumType.STRING)
     private EEnrollmentStatus status;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @CreationTimestamp
     private LocalDateTime enrolledAt;
 }
