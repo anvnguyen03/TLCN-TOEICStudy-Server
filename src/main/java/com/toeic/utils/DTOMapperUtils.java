@@ -10,8 +10,10 @@ import org.springframework.data.domain.Page;
 import com.toeic.dto.response.CardMatchingQuestionDTO;
 import com.toeic.dto.response.CommentDTO;
 import com.toeic.dto.response.CourseCardDTO;
+import com.toeic.dto.response.CourseDetailDTO;
 import com.toeic.dto.response.CourseInfoDTO;
 import com.toeic.dto.response.CourseReviewDTO;
+import com.toeic.dto.response.CourseSectionDetailDTO;
 import com.toeic.dto.response.CourseSectionPreviewDTO;
 import com.toeic.dto.response.LessonDetailDTO;
 import com.toeic.dto.response.LessonPreviewDTO;
@@ -445,5 +447,58 @@ public class DTOMapperUtils {
 		optionDTO.setOptionText3(option.getOptionText3());
 		return optionDTO;
 	}
-	
+
+	public static CourseDetailDTO mapToCourseDetailDTO(Course course) {
+		CourseDetailDTO courseDetailDTO = new CourseDetailDTO();
+		courseDetailDTO.setId(course.getId());
+		courseDetailDTO.setTitle(course.getTitle());
+		courseDetailDTO.setDescription(course.getDescription());
+		courseDetailDTO.setObjective(course.getObjective());
+		courseDetailDTO.setThumbnailUrl(course.getThumbnail_url());
+		courseDetailDTO.setPreviewVideoUrl(course.getPreview_video_url());
+		courseDetailDTO.setPrice(course.getPrice().doubleValue());
+		courseDetailDTO.setTotalReviews(course.getReviews().size());
+		courseDetailDTO.setStudents(course.getEnrollments().size());
+		courseDetailDTO.setTotalSections(course.getSections().size());
+		courseDetailDTO.setTotalLessons(course.getSections().stream()
+				.mapToInt(section -> section.getLessons().size())
+				.sum());
+
+		// set sections - order by orderIndex
+		Collections.sort(course.getSections(), (a, b) -> Integer.compare(a.getOrderIndex(), b.getOrderIndex()));
+		List<CourseSectionDetailDTO> sections = new ArrayList<>();
+		for (CourseSection section : course.getSections()) {
+			CourseSectionDetailDTO sectionDTO = mapToCourseSectionDetailDTO(section);
+			sections.add(sectionDTO);
+		}
+		courseDetailDTO.setSections(sections);
+		return courseDetailDTO;
+	}
+
+	public static CourseSectionDetailDTO mapToCourseSectionDetailDTO(CourseSection section) {
+		CourseSectionDetailDTO sectionDTO = new CourseSectionDetailDTO();
+		sectionDTO.setId(section.getId());
+		sectionDTO.setTitle(section.getTitle());
+		sectionDTO.setOrderIndex(section.getOrderIndex());
+		sectionDTO.setTotalLessons(section.getLessons().size());
+		
+		// isCompleted will be check in service
+		
+		// duration calculate from lessons
+		int duration = 0;
+		for (Lesson lesson : section.getLessons()) {
+			duration += lesson.getDuration();
+		}
+		sectionDTO.setDuration(duration);
+
+		// set lessons - order by orderIndex
+		Collections.sort(section.getLessons(), (a, b) -> Integer.compare(a.getOrderIndex(), b.getOrderIndex()));
+		List<LessonDetailDTO> lessons = new ArrayList<>();
+		for (Lesson lesson : section.getLessons()) {
+			LessonDetailDTO lessonDTO = mapToLessonDetailDTO(lesson);
+			lessons.add(lessonDTO);
+		}
+		sectionDTO.setLessons(lessons);
+		return sectionDTO;
+	}
 }

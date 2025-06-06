@@ -2,6 +2,8 @@ package com.toeic.entity;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Entity;
@@ -32,5 +34,6 @@ public class LessonCompletion {
     private Lesson lesson;
 
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+    @CreationTimestamp
     private LocalDateTime completedAt;
 }

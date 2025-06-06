@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class TrialCardMatchingAnswerRequest {
+public class CardMatchingAnswerRequest {
     private Long quizQuestionId;
     private List<CardMatchingPair> pairs;
     

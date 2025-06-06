@@ -13,6 +13,8 @@ public class LessonDetailDTO {
     private int duration;
     private int orderIndex;
     private Boolean isFree;
+    // For user enrolled in the course, track their progress
+    private Boolean isCompleted;
 
     // For TEXT lesssons
     private String content;
