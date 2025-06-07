@@ -237,4 +237,27 @@ public class DoCourseServiceImpl implements DoCourseService {
 
         return result;
     }
+
+    @Override
+    public void markLessonAsCompleted(Long userId, Long lessonId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson not found"));
+
+        if (!lessonCompletionRepository.existsByUserIdAndLessonId(userId, lessonId)) {
+            LessonCompletion lessonCompletion = new LessonCompletion();
+            lessonCompletion.setUser(user);
+            lessonCompletion.setLesson(lesson);
+            lessonCompletionRepository.save(lessonCompletion);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void unmarkLessonAsCompleted(Long userId, Long lessonId) {
+        LessonCompletion lessonCompletion = lessonCompletionRepository.findByUserIdAndLessonId(userId, lessonId)
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson not found"));
+        lessonCompletionRepository.delete(lessonCompletion);
+    }
 }

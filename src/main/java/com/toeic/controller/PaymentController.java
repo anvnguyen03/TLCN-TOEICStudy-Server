@@ -35,9 +35,9 @@ public class PaymentController {
         String paymentUrl = paymentService.createVnPayPaymentURL(request);
 
         // VNPay sandbox url pay error => enroll course right after create payment url
-        long userId = Long.parseLong(request.getParameter("userId"));
-        long courseId = Long.parseLong(request.getParameter("courseId"));
-        courseEnrollmentService.enrollCourse(userId, courseId);
+        // long userId = Long.parseLong(request.getParameter("userId"));
+        // long courseId = Long.parseLong(request.getParameter("courseId"));
+        // courseEnrollmentService.enrollCourse(userId, courseId);
 
         ApiResponse<String> response = ApiResponse.success(HttpStatus.OK, "Payment URL created successfully", paymentUrl);
         return ResponseEntity.ok(response);

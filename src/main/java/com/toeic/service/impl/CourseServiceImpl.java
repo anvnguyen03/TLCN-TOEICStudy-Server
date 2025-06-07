@@ -138,6 +138,14 @@ public class CourseServiceImpl implements CourseService {
 
         CourseDetailDTO dto = DTOMapperUtils.mapToCourseDetailDTO(course);
 
+        // calculate duration
+        int duration = course.getSections().stream()
+                .mapToInt(section -> section.getLessons().stream()
+                        .mapToInt(Lesson::getDuration)
+                        .sum())
+                .sum();
+        dto.setDuration(duration);
+
         // Calculate total completed lessons and set completion status
         int totalCompletedLessons = dto.getSections().stream()
             .flatMap(section -> section.getLessons().stream())

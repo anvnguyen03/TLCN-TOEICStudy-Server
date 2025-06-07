@@ -21,4 +21,10 @@ public interface DoCourseService {
 
     // Check card matching quiz answers for enrolled user
     LearnCardMatchingResultDTO checkEnrolledCardMatchingAnswers(Long userId, Long lessonId, CardMatchingAnswerRequest request);
+
+    // mark a lesson as completed
+    void markLessonAsCompleted(Long userId, Long lessonId);
+
+    // unmark a lesson as completed
+    void unmarkLessonAsCompleted(Long userId, Long lessonId);
 }

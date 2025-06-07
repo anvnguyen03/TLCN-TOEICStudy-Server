@@ -84,4 +84,22 @@ public class DoCourseController {
             HttpStatus.OK, "Card matching answers checked successfully", result);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/enrolled/mark-lesson-as-completed")
+    public ResponseEntity<ApiResponse<Long>> markLessonAsCompleted(
+            @RequestParam Long userId,
+            @RequestParam Long lessonId) {
+        doCourseService.markLessonAsCompleted(userId, lessonId);
+        ApiResponse<Long> response = ApiResponse.success(HttpStatus.OK, "Lesson marked as completed", lessonId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/enrolled/unmark-lesson-as-completed")
+    public ResponseEntity<ApiResponse<Long>> unmarkLessonAsCompleted(
+            @RequestParam Long userId,
+            @RequestParam Long lessonId) {
+        doCourseService.unmarkLessonAsCompleted(userId, lessonId);
+        ApiResponse<Long> response = ApiResponse.success(HttpStatus.OK, "Lesson unmarked as completed", lessonId);
+        return ResponseEntity.ok(response);
+    }
 }

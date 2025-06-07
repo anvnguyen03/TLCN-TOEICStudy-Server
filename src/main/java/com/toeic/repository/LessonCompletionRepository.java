@@ -1,5 +1,7 @@
 package com.toeic.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +13,6 @@ public interface LessonCompletionRepository extends JpaRepository<LessonCompleti
     // check if user has completed the lesson
     boolean existsByUserIdAndLessonId(Long userId, Long lessonId);
 
+    // find by user id and lesson id
+    Optional<LessonCompletion> findByUserIdAndLessonId(Long userId, Long lessonId);
 }
