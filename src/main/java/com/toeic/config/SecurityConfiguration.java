@@ -34,7 +34,8 @@ public class SecurityConfiguration {
 			"/api/v1/test/**",
 			"/api/v1/test-category/**",
 			"/api/v1/course/**",
-			"/api/v1/payment/**"
+			"/api/v1/payment/**",
+			"/api/v1/video-serve/**"
 	};
 	
 	@Bean

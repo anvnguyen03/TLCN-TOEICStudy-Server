@@ -38,3 +38,4 @@ secrets.properties
 # Media files
 src/main/resources/static/audios/
 src/main/resources/static/videos/
+videos/
