@@ -7,10 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.toeic.entity.CourseEnrollment;
-import com.toeic.entity.User;
 
 @Repository
 public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollment, Long> {
-    List<CourseEnrollment> findByUser(User user);
+    List<CourseEnrollment> findByUserId(Long userId);
     Optional<CourseEnrollment> findByUserIdAndCourseId(Long userId, Long courseId);
 }

@@ -50,7 +50,9 @@ public class SecurityConfiguration {
 																"/api/v1/account/**",
 																"/api/v1/do-test/**",
 																"/api/v1/comment/**",
-																"/api/v1/do-course/**").hasAnyAuthority(ERole.USER.name(), ERole.ADMIN.name())
+																"/api/v1/do-course/**",
+																"/api/v1/course-enrollment/**",
+																"/api/v1/course-review/**").hasAnyAuthority(ERole.USER.name(), ERole.ADMIN.name())
 												.requestMatchers("/api/v1/admin/**").hasAnyAuthority(ERole.ADMIN.name())
 
 												.anyRequest().authenticated())
