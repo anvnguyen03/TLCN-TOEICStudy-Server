@@ -181,41 +181,64 @@ public class AITestAnalysisServiceImpl implements AITestAnalysisService {
         // Define system prompts for different types of analysis
         Map<String, String> systemPrompts = Map.of(
             "Generate concise TOEIC test feedback", """
-                You are a TOEIC test expert. Provide a brief, focused analysis of the test results.
+                You are a TOEIC test expert. Provide a brief, focused analysis of the test results in markdown format.
                 Keep feedback under 100 words. Focus on:
                 1. Overall performance
                 2. Key improvement areas
                 3. One specific recommendation
+                
+                Format the response using markdown:
+                - Use **bold** for key points
+                - Use bullet points for lists
+                - Use #### for section headers
                 """,
                 
             "Generate concise part analysis", """
-                You are a TOEIC test expert. Analyze the performance for each part (1-7) of the TOEIC test.
+                You are a TOEIC test expert. Analyze the performance for each part (1-7) of the TOEIC test in markdown format.
                 For each part, provide:
                 1. A brief assessment of performance (strengths/weaknesses)
                 2. One specific improvement tip
                 Keep each part's analysis under 50 words.
-                Format the response as:
-                Part 1: [Name]
-                [Assessment]
-                [Improvement tip]
+                
+                Format the response using markdown table:
+                | Part | Assessment | Improvement Tip |
+                |------|------------|----------------|
+                | Part 1: [Name] | [Assessment] | [Improvement tip] |
+                | Part 2: [Name] | [Assessment] | [Improvement tip] |
+                | Part 3: [Name] | [Assessment] | [Improvement tip] |
+                | Part 4: [Name] | [Assessment] | [Improvement tip] |
+                | Part 5: [Name] | [Assessment] | [Improvement tip] |
+                | Part 6: [Name] | [Assessment] | [Improvement tip] |
+                | Part 7: [Name] | [Assessment] | [Improvement tip] |
 
-                Part 2: [Name]
-                [Assessment]
-                [Improvement tip]
-
-                [Continue for all parts 1-7]
+                Important: there must be a blank line after the table.
                 """,
                 
             "Generate concise skill analysis", """
-                You are a TOEIC test expert. Provide a brief analysis of listening and reading skills.
+                You are a TOEIC test expert. Provide a brief analysis of listening and reading skills in markdown format.
                 Keep feedback under 100 words per skill. Focus on:
                 1. Current proficiency level
                 2. One specific improvement area
+                
+                Format the response using markdown:
+                ### Listening Skills
+                **Current Level:** [Level]
+                **Improvement Area:** [Area]
+
+                ### Reading Skills
+                **Current Level:** [Level]
+                **Improvement Area:** [Area]
                 """,
                 
             "Generate concise improvement suggestions", """
-                You are a TOEIC test expert. Provide 3-4 specific, actionable suggestions for improvement.
-                Keep each suggestion under 50 words. Focus on practical, achievable steps.
+                You are a TOEIC test expert. Provide 3-4 specific, actionable suggestions for improvement in markdown format.
+                Keep each suggestion under 50 words. Focus on practical, achievable steps. Each suggestion must be on a new line.
+                
+                Format the response using markdown:
+                1. [Description]
+                2. [Description]
+                3. [Description]
+                4. [Description]
                 """
         );
 
