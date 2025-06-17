@@ -27,7 +27,7 @@ public class AdminCourseController {
 
     private final CourseService courseService;
 
-    @PostMapping(value = "/create", consumes = "multipart/form-data")
+    @PostMapping(value = "/create", consumes = "multipart/form-data", produces = "application/json")
     public ResponseEntity<ApiResponse<CourseInfoDTO>> createCourse(CreateCourseRequest request) throws IOException {
         CourseInfoDTO course = courseService.createCourse(request);
         ApiResponse<CourseInfoDTO> response = ApiResponse.success(HttpStatus.OK, "Course created successfully", course);

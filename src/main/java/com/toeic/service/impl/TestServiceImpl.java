@@ -100,7 +100,7 @@ public class TestServiceImpl implements TestService{
 			test.setDuration(duration);
 			test.setListening_audio(listeningAudioPath);
 			
-			TestCategory testCategory = testCategoryRepository.findByName("Full Test").orElseThrow(() -> new ResourceNotFoundException("Unknown category"));
+			TestCategory testCategory = testCategoryRepository.findByName("TOEIC LC+RC").orElseThrow(() -> new ResourceNotFoundException("Unknown category"));
 			test.setTestCategory(testCategory);
 			test = testRepository.save(test);
 			
